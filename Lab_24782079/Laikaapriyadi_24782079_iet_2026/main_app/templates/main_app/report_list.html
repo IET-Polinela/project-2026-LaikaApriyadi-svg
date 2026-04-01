@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head><title>Daftar Laporan - Smart City</title></head>
+<body>
+    <h1>Daftar Permasalahan Kota</h1>
+    <a href="{% url 'add_report' %}">+ Tambah Laporan Baru</a>
+    <hr>
+    <ul>
+        {% for report in reports %} <li>
+                <strong>{{ report.title }}</strong> [{{ report.category }}]<br>
+                Lokasi: {{ report.location }} | Status: {{ report.status }}<br>
+                <small>Dilaporkan pada: {{ report.created_at }}</small>
+            </li>
+            <br>
+        {% empty %}
+            <li>Belum ada laporan yang masuk.</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
