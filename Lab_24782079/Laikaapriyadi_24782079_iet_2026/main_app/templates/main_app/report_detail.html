@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head><title>Detail Laporan</title></head>
+<body>
+    <h1>Detail Laporan: {{ object.title }}</h1>
+    <p><strong>Kategori:</strong> {{ object.category }}</p>
+    <p><strong>Lokasi:</strong> {{ object.location }}</p>
+    <p><strong>Status:</strong> {{ object.get_status_display }}</p>
+    <p><strong>Deskripsi:</strong> {{ object.description }}</p>
+    <hr>
+    <a href="{% url 'report_update' object.pk %}">Edit Laporan</a> | 
+    <a href="{% url 'report_list' %}">Kembali ke Daftar</a>
+</body>
+</html>

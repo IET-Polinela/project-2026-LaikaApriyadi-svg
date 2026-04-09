@@ -1,20 +1,36 @@
 <!DOCTYPE html>
 <html>
-<head><title>Daftar Laporan - Smart City</title></head>
+<head><title>Smart City - List</title></head>
 <body>
-    <h1>Daftar Permasalahan Kota</h1>
-    <a href="{% url 'add_report' %}">+ Tambah Laporan Baru</a>
+    <h1>Daftar Laporan Masyarakat</h1>
+    <a href="{% url 'report_create' %}">Tambah Laporan Baru</a>
     <hr>
     <ul>
-        {% for report in reports %} <li>
-                <strong>{{ report.title }}</strong> [{{ report.category }}]<br>
-                Lokasi: {{ report.location }} | Status: {{ report.status }}<br>
-                <small>Dilaporkan pada: {{ report.created_at }}</small>
-            </li>
+    {% for report in reports %}
+        <li>
+            <strong>{{ report.title }}</strong> - Status: <b>{{ report.get_status_display }}</b>
             <br>
-        {% empty %}
-            <li>Belum ada laporan yang masuk.</li>
-        {% endfor %}
+            
+            {% if report.status == 'REPORTED' %}
+                <form method="POST" action="{% url 'update_status' report.pk %}" style="display:inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="status" value="VERIFIED">
+                    <button type="submit">Verify</button>
+                </form>
+            {% elif report.status == 'VERIFIED' %}
+                <form method="POST" action="{% url 'update_status' report.pk %}" style="display:inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="status" value="IN_PROGRESS">
+                    <button type="submit">Start Working</button>
+                </form>
+            {% endif %}
+
+            | <a href="{% url 'report_detail' report.pk %}">Detail</a>
+            | <a href="{% url 'report_update' report.pk %}">Edit</a>
+        </li>
+    {% empty %}
+        <li>Belum ada laporan.</li>
+    {% endfor %}
     </ul>
 </body>
 </html>
