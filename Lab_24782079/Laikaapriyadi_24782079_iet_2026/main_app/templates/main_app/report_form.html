@@ -1,14 +1,28 @@
-<!DOCTYPE html>
-<html>
-<head><title>Form Laporan</title></head>
-<body>
-    <h2>Form Laporan</h2>
-    <form method="POST">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Simpan</button>
-    </form>
-    <br>
-    <a href="{% url 'report_list' %}">Kembali ke Daftar</a>
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card shadow-sm mx-auto" style="max-width: 600px;">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">Form Pelaporan</h5>
+    </div>
+    <div class="card-body">
+        <form method="POST" id="submit-form">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <div class="mt-4">
+                <button type="submit" class="btn btn-success" id="btn-submit">Simpan Laporan</button>
+                <a href="{% url 'report_list' %}" class="btn btn-secondary">Kembali</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Loading Feedback [cite: 244]
+    document.getElementById('submit-form').onsubmit = function() {
+        let btn = document.getElementById('btn-submit');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Loading...';
+    };
+</script>
+{% endblock %}
