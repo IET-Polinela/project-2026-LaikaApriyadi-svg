@@ -3,7 +3,8 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('main_app.urls')), # Memastikan semua rute main_app terbaca [cite: 25, 46]
-    path('about/', include('about.urls')),
-    path('contacts/', include('contacts.urls')),
+    # Letakkan usermanagement DI ATAS auth.urls agar logout kustom kita yang dipakai
+    path('accounts/', include('usermanagement_24782079.urls')), 
+    path('accounts/', include('django.contrib.auth.urls')),
+    path('', include('main_app.urls')),
 ]

@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-4">
+        <div class="card shadow border-0">
+            <div class="card-header bg-primary text-white text-center py-3">
+                <h4 class="mb-0 fw-bold"><i class="bi bi-person-circle"></i> Login IET City</h4>
+            </div>
+
+            <div class="card-body p-4">
+                {% if form.errors %}
+                    <div class="alert alert-danger small">
+                        <i class="bi bi-exclamation-triangle-fill"></i> Username atau password salah.
+                    </div>
+                {% endif %}
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        {{ form.as_p }}
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary shadow-sm">
+                            <i class="bi bi-box-arrow-in-right"></i> Masuk
+                        </button>
+                    </div>
+                </form>
+
+                <hr class="my-4">
+
+                <div class="text-center mt-3">
+                    <p class="mb-0 text-muted">Belum punya akun?</p>
+                    <a href="{% url 'signup' %}" class="btn btn-outline-success btn-sm mt-2 w-100">
+                        <i class="bi bi-person-plus-fill"></i> Daftar akun baru
+                    </a>
+                </div>
+            </div>
+
+            <div class="card-footer bg-light text-center py-2">
+                <small class="text-muted">Smart City Reporting System &copy; 2026</small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

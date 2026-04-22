@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'main_app',
     'about',
     'contacts',
+    'usermanagement_24782079',
 ]
 
 MIDDLEWARE = [
@@ -123,3 +124,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+# Daftarkan model user kustom 
+AUTH_USER_MODEL = 'usermanagement_24782079.User'
+
+AUTH_PASSWORD_VALIDATORS = []
+
+# Redirect setelah Login/Logout [
+LOGIN_REDIRECT_URL = 'report_list'
+LOGOUT_REDIRECT_URL = 'login'
