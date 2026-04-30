@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard Statistik IET City{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-primary">Dashboard Statistik IET City</h2>
+        <div>
+            <a href="{% url 'report_list' %}" class="btn btn-outline-secondary btn-sm me-2">
+                <i class="bi bi-arrow-left"></i> Kembali
+            </a>
+            <span class="badge bg-secondary p-2">Data Real-time (1000+ Records)</span>
+        </div>
+    </div>
+
+    <div class="row mb-5">
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white fw-bold">Distribusi Status Laporan</div>
+                <div class="card-body"><canvas id="statusChart" style="max-height: 300px;"></canvas></div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white fw-bold">Jumlah Laporan per Kategori</div>
+                <div class="card-body"><canvas id="categoryChart" style="max-height: 300px;"></canvas></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-warning text-dark fw-bold">5 Laporan Baru (REPORTED)</div>
+                <div class="card-body p-0">
+                    <table class="table table-hover mb-0" id="tableReported">
+                        <thead class="table-light"><tr><th>Judul Laporan</th><th>Lokasi</th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-success text-white fw-bold">5 Laporan Selesai (RESOLVED)</div>
+                <div class="card-body p-0">
+                    <table class="table table-hover mb-0" id="tableResolved">
+                        <thead class="table-light"><tr><th>Judul Laporan</th><th>Lokasi</th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        fetch("{% url 'dashboard_api_data' %}")
+            .then(res => res.json())
+            .then(data => {
+                // --- BAGIAN PENTING UNTUK SCREENSHOT POIN 6 ---
+                console.log("=== DEBUG DATA DASHBOARD IET CITY ===");
+                console.log("Raw JSON Data:", data);
+                console.log("Kategori Stats:", data.category_stats);
+                console.log("Status Stats:", data.status_stats);
+                // ----------------------------------------------
+
+                // Chart Status
+                new Chart(document.getElementById('statusChart').getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: data.status_stats.map(i => i.status),
+                        datasets: [{
+                            data: data.status_stats.map(i => i.count),
+                            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0']
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+
+                // Chart Kategori
+                new Chart(document.getElementById('categoryChart').getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: data.category_stats.map(i => i.category),
+                        datasets: [{ 
+                            label: 'Jumlah Laporan', 
+                            data: data.category_stats.map(i => i.count), 
+                            backgroundColor: '#4e73df' 
+                        }]
+                    },
+                    options: { 
+                        responsive: true, 
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: { beginAtZero: true }
+                        }
+                    }
+                });
+
+                // Tabel Data
+                const fillTable = (id, list) => {
+                    const el = document.querySelector(id + ' tbody');
+                    if(list && list.length > 0) {
+                        list.forEach(i => {
+                            el.innerHTML += `<tr><td class="small fw-bold">${i.title}</td><td class="small">${i.location}</td></tr>`;
+                        });
+                    } else {
+                        el.innerHTML = '<tr><td colspan="2" class="text-center text-muted small py-3">Tidak ada data</td></tr>';
+                    }
+                };
+                fillTable('#tableReported', data.latest_reported);
+                fillTable('#tableResolved', data.latest_resolved);
+            })
+            .catch(error => console.error("Error fetching dashboard data:", error));
+    });
+</script>
+{% endblock %}

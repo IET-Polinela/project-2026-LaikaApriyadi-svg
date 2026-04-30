@@ -8,7 +8,6 @@
                 <i class="bi bi-house-door-fill"></i> Home
             </a>
         </li>
-        
         <li class="breadcrumb-item active" aria-current="page">
             <a href="{% url 'report_list' %}" class="text-decoration-none text-secondary">
                 Reports
@@ -19,13 +18,20 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 class="fw-bold text-dark"><i class="bi bi-list-stars"></i> Daftar Laporan Masalah</h2>
-    <a href="{% url 'report_create' %}" class="btn btn-primary shadow-sm">
-        <i class="bi bi-plus-lg"></i> Tambah Laporan
-    </a>
+    <div class="d-flex gap-2">
+        <!-- Fitur Live Search [Lab 7] -->
+        <div class="input-group" style="width: 300px;">
+            <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+            <input type="text" id="searchInput" class="form-control border-start-0" placeholder="Cari laporan...">
+        </div>
+        <a href="{% url 'report_create' %}" class="btn btn-primary shadow-sm">
+            <i class="bi bi-plus-lg"></i> Tambah Laporan
+        </a>
+    </div>
 </div>
 
 <div class="table-responsive shadow-sm rounded">
-    <table class="table table-hover align-middle bg-white">
+    <table class="table table-hover align-middle bg-white" id="reportTable">
         <thead class="table-dark">
             <tr>
                 <th scope="col" style="width: 30%">Judul</th>
@@ -52,9 +58,15 @@
                 </td>
                 <td class="text-center">
                     <div class="btn-group" role="group">
-                        <a href="{% url 'report_detail' report.pk %}" class="btn btn-sm btn-info text-white" title="Lihat Detail">
+                        <!-- Tombol Modal Detail (Triggered by JS) -->
+                        <button type="button" class="btn btn-sm btn-info text-white btn-detail" 
+                                data-title="{{ report.title }}"
+                                data-location="{{ report.location }}"
+                                data-status="{{ report.get_status_display }}"
+                                data-description="{{ report.description }}"
+                                data-category="{{ report.category }}">
                             <i class="bi bi-eye"></i> Detail
-                        </a>
+                        </button>
 
                         {% if report.status == 'REPORTED' %}
                             <form method="POST" action="{% url 'update_status' report.pk %}" class="d-inline ms-1">
@@ -92,7 +104,6 @@
                         <i class="bi bi-clipboard-x display-1 text-muted"></i>
                     </div>
                     <h5 class="text-secondary">Belum ada laporan yang tersedia.</h5>
-                    <p class="text-muted small">Silakan tambah laporan baru untuk melihat data di sini.</p>
                     <a href="{% url 'report_create' %}" class="btn btn-primary mt-2">Tambah Sekarang</a>
                 </td>
             </tr>
@@ -100,4 +111,73 @@
         </tbody>
     </table>
 </div>
+
+<!-- Modal Detail Laporan [Lab 7] -->
+<div class="modal fade" id="reportModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg border-0">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title fw-bold" id="modalTitle"></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="mb-3">
+                    <label class="text-muted small text-uppercase fw-bold">Lokasi</label>
+                    <p id="modalLocation" class="fw-semibold"></p>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <label class="text-muted small text-uppercase fw-bold">Kategori</label>
+                        <p id="modalCategory"></p>
+                    </div>
+                    <div class="col-6">
+                        <label class="text-muted small text-uppercase fw-bold">Status</label>
+                        <div><span id="modalStatus" class="badge rounded-pill bg-info"></span></div>
+                    </div>
+                </div>
+                <div class="mb-0">
+                    <label class="text-muted small text-uppercase fw-bold">Deskripsi</label>
+                    <p id="modalDescription" class="bg-light p-3 rounded text-secondary"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Script JavaScript untuk Lab Session 7 -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // --- 1. FITUR LIVE SEARCH ---
+        const searchInput = document.getElementById('searchInput');
+        const tableBody = document.querySelector('#reportTable tbody');
+
+        searchInput.addEventListener('keyup', function() {
+            const filter = searchInput.value.toLowerCase();
+            const rows = tableBody.getElementsByTagName('tr');
+
+            for (let row of rows) {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(filter) ? '' : 'none';
+            }
+        });
+
+        // --- 2. MODAL DETAIL (EVENT DELEGATION) ---
+        // Teknik ini wajib agar tombol detail tetap berfungsi setelah Live Search
+        tableBody.addEventListener('click', function(e) {
+            const btn = e.target.closest('.btn-detail');
+            if (!btn) return;
+
+            // Mapping data dari atribut tombol ke Modal
+            document.getElementById('modalTitle').innerText = btn.dataset.title;
+            document.getElementById('modalLocation').innerText = btn.dataset.location;
+            document.getElementById('modalCategory').innerText = btn.dataset.category;
+            document.getElementById('modalStatus').innerText = btn.dataset.status;
+            document.getElementById('modalDescription').innerText = btn.dataset.description;
+
+            // Munculkan Modal
+            const myModal = new bootstrap.Modal(document.getElementById('reportModal'));
+            myModal.show();
+        });
+    });
+</script>
 {% endblock %}

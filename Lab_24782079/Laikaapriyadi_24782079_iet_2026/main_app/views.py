@@ -1,37 +1,40 @@
 from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
-
-# IMPORT BARU UNTUK LAB 6 [cite: 23, 42]
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from .models import Report
+from django.shortcuts import render
+from .models import Report  # Pastikan model Report diimport jika ingin menampilkan total laporan
 
-# 1. MIXIN UNTUK OTORISASI (Hanya Admin yang boleh CRUD) 
+def home_view(request):
+    # Mengambil jumlah laporan untuk ditampilkan sebagai statistik kecil
+    total_laporan = Report.objects.count()
+    return render(request, 'home.html', {'total': total_laporan})
+
+# 1. MIXIN UNTUK OTORISASI
 class AdminRequiredMixin(UserPassesTestMixin):
     def test_func(self):
-        # Mengecek apakah user sudah login dan apakah is_admin bernilai True [cite: 42]
         return self.request.user.is_authenticated and self.request.user.is_admin
 
     def handle_no_permission(self):
-        # Jika bukan admin mencoba akses, berikan pesan error dan lempar balik ke daftar [cite: 47, 59-60]
         messages.error(self.request, "Akses Ditolak: Fitur ini hanya untuk Admin!")
         return redirect('report_list')
 
-# 2. VIEW DAFTAR LAPORAN (Bisa dilihat siapa saja, termasuk Citizen) [cite: 13, 44]
+# 2. VIEW DAFTAR LAPORAN
 class ReportListView(ListView):
     model = Report
     template_name = 'main_app/report_list.html'
     context_object_name = 'reports'
 
-# 3. VIEW DETAIL (Bisa dilihat siapa saja yang sudah login) [cite: 44]
+# 3. VIEW DETAIL
 class ReportDetailView(LoginRequiredMixin, DetailView):
     model = Report
     template_name = 'main_app/report_detail.html'
 
-# 4. VIEW TAMBAH LAPORAN (HANYA ADMIN) [cite: 14, 43]
+# 4. VIEW TAMBAH LAPORAN
 class ReportCreateView(LoginRequiredMixin, AdminRequiredMixin, SuccessMessageMixin, CreateView):
     model = Report
     fields = ['title', 'category', 'description', 'location']
@@ -39,7 +42,7 @@ class ReportCreateView(LoginRequiredMixin, AdminRequiredMixin, SuccessMessageMix
     success_url = reverse_lazy('report_list')
     success_message = "Laporan baru berhasil dibuat oleh Admin!"
 
-# 5. VIEW UPDATE LAPORAN (HANYA ADMIN) [cite: 14, 43]
+# 5. VIEW UPDATE LAPORAN
 class ReportUpdateView(LoginRequiredMixin, AdminRequiredMixin, SuccessMessageMixin, UpdateView):
     model = Report
     fields = ['title', 'category', 'description', 'location', 'status']
@@ -47,7 +50,7 @@ class ReportUpdateView(LoginRequiredMixin, AdminRequiredMixin, SuccessMessageMix
     success_url = reverse_lazy('report_list')
     success_message = "Laporan berhasil diperbarui!"
 
-# 6. VIEW HAPUS LAPORAN (HANYA ADMIN) [cite: 14, 43]
+# 6. VIEW HAPUS LAPORAN
 class ReportDeleteView(LoginRequiredMixin, AdminRequiredMixin, DeleteView):
     model = Report
     template_name = 'main_app/report_confirm_delete.html'
@@ -55,8 +58,9 @@ class ReportDeleteView(LoginRequiredMixin, AdminRequiredMixin, DeleteView):
 
     def delete(self, request, *args, **kwargs):
         messages.warning(self.request, "Laporan telah dihapus!")
+        return super().delete(request, *args, **kwargs)
 
-# 7. VIEW UPDATE STATUS WORKFLOW (HANYA ADMIN) [cite: 42]
+# 7. VIEW UPDATE STATUS
 class ReportUpdateStatusView(LoginRequiredMixin, AdminRequiredMixin, View):
     def post(self, request, pk):
         report = get_object_or_404(Report, pk=pk)
@@ -65,3 +69,19 @@ class ReportUpdateStatusView(LoginRequiredMixin, AdminRequiredMixin, View):
         report.save()
         messages.success(request, f"Status diperbarui menjadi {new_status}")
         return redirect('report_list')
+
+# --- TAMBAHAN UNTUK MENU NAVBAR (ABOUT & CONTACT) ---
+
+def about_view(request):
+    return render(request, 'about.html')
+
+def contact_view(request):
+    return render(request, 'contact.html')
+
+def home_view(request):
+    total_laporan = Report.objects.count()
+    return render(request, 'home.html', {'total': total_laporan})
+
+def home_view(request):
+    # Logika sederhana untuk menampilkan halaman home
+    return render(request, 'home.html')

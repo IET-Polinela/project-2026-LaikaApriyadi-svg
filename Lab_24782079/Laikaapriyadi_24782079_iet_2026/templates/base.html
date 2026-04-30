@@ -4,18 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IET City - Smart City Report</title>
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
     <style>
-        body { background-color: #f4f7f6; }
+        body { background-color: #f4f7f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
         .navbar-brand { font-weight: 800; letter-spacing: 0.5px; }
-        .nav-link { font-weight: 500; }
+        .nav-link { font-weight: 500; transition: 0.3s; }
+        /* Style untuk link yang aktif agar user tahu posisi mereka */
+        .nav-link.active { color: #fff !important; font-weight: 700; border-bottom: 2px solid #fff; }
+        .navbar-dark .navbar-nav .nav-link { color: rgba(255, 255, 255, 0.8); }
+        .navbar-dark .navbar-nav .nav-link:hover { color: #fff; }
+        main { flex: 1; }
+        footer { background: #fff; border-top: 1px solid #dee2e6; padding: 1rem 0; margin-top: 2rem; }
     </style>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mb-4">
         <div class="container">
-            <a class="navbar-brand" href="/"><i class="bi bi-buildings-fill"></i> IET City</a>
+            <a class="navbar-brand" href="{% url 'home_page' %}">
+                <i class="bi bi-buildings-fill"></i> IET City
+            </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -23,7 +34,33 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'report_list' %}"></a>
+                        <a class="nav-link {% if request.resolver_match.url_name == 'home_page' %}active{% endif %}" href="{% url 'home_page' %}">
+                            <i class="bi bi-house-door"></i> Home
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'dashboard' in request.path %}active{% endif %}" href="{% url 'dashboard_main' %}">
+                            <i class="bi bi-graph-up"></i> Dashboard
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}" href="{% url 'about' %}">
+                            <i class="bi bi-info-circle"></i> About
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'contact' %}active{% endif %}" href="{% url 'contact' %}">
+                            <i class="bi bi-envelope"></i> Contact
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'report_list' %}active{% endif %}" href="{% url 'report_list' %}">
+                            <i class="bi bi-file-earmark-text"></i> Report
+                        </a>
                     </li>
                 </ul>
             
@@ -77,6 +114,12 @@
             {% endblock %}
         </main>
     </div>
+
+    <footer class="text-center text-muted">
+        <div class="container">
+            <small>&copy; 2026 IET City - Lab Session 7 | Created by Laika Apriyadi (24782079)</small>
+        </div>
+    </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

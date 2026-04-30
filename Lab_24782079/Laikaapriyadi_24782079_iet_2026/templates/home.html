@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="jumbotron p-5 mb-4 bg-light rounded-3 border shadow-sm">
+        <div class="container-fluid py-5 text-center">
+            <h1 class="display-5 fw-bold text-primary">Selamat Datang di IET City</h1>
+            <p class="col-md-12 fs-4 text-muted">Platform Smart City Masa Kini. Kelola laporan warga dengan lebih mudah, transparan, dan terintegrasi.</p>
+            <div class="mt-4">
+                <a href="{% url 'report_list' %}" class="btn btn-primary btn-lg px-4"><i class="bi bi-list-task"></i> Buka Daftar Laporan</a>
+                <a href="{% url 'dashboard_main' %}" class="btn btn-success btn-lg px-4"><i class="bi bi-speedometer2"></i> Dashboard Statistik</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 py-5 row-cols-1 row-cols-lg-3">
+      <div class="col d-flex align-items-start">
+        <div class="icon-square text-bg-light d-inline-flex align-items-center justify-content-center fs-4 flex-shrink-0 me-3">
+          <i class="bi bi-megaphone-fill text-primary"></i>
+        </div>
+        <div>
+          <h3 class="fs-2">Lapor Cepat</h3>
+          <p>Laporkan segala kendala infrastruktur di kota langsung dari gadget Anda.</p>
+        </div>
+      </div>
+      <div class="col d-flex align-items-start">
+        <div class="icon-square text-bg-light d-inline-flex align-items-center justify-content-center fs-4 flex-shrink-0 me-3">
+          <i class="bi bi-shield-check text-success"></i>
+        </div>
+        <div>
+          <h3 class="fs-2">Terverifikasi</h3>
+          <p>Setiap laporan akan diverifikasi langsung oleh Admin IET City secara real-time.</p>
+        </div>
+      </div>
+      <div class="col d-flex align-items-start">
+        <div class="icon-square text-bg-light d-inline-flex align-items-center justify-content-center fs-4 flex-shrink-0 me-3">
+          <i class="bi bi-graph-up-arrow text-info"></i>
+        </div>
+        <div>
+          <h3 class="fs-2">Data Akurat</h3>
+          <p>Lihat perkembangan penanganan masalah kota melalui dashboard statistik kami.</p>
+        </div>
+      </div>
+    </div>
+</div>
+{% endblock %}
