@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'contacts',
     'usermanagement_24782079',
     'dashboard_24782079',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -80,12 +81,12 @@ WSGI_APPLICATION = 'Laikaapriyadi_24782079_iet_2026.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'smartcity_db', # Buat database ini dulu di PGAdmin/Terminal
         'USER': 'postgres',
         'PASSWORD': '123', # Sesuaikan password Anda
         'HOST': 'localhost',
         'PORT': '5432',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 

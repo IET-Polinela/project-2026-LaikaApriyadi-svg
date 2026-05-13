@@ -1,28 +1,210 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="card shadow-sm mx-auto" style="max-width: 600px;">
-    <div class="card-header bg-primary text-white">
-        <h5 class="mb-0">Form Pelaporan</h5>
-    </div>
-    <div class="card-body">
-        <form method="POST" id="submit-form">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <div class="mt-4">
-                <button type="submit" class="btn btn-success" id="btn-submit">Simpan Laporan</button>
-                <a href="{% url 'report_list' %}" class="btn btn-secondary">Kembali</a>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+    :root {
+        --primary-blue: #0061ff;
+        --secondary-blue: #60efff;
+        --soft-bg: #f8fafc;
+    }
+
+    body {
+        font-family: 'Inter', sans-serif;
+        background-color: var(--soft-bg);
+    }
+
+    /* Breadcrumb Modern */
+    .breadcrumb-modern {
+        background: transparent;
+        padding: 0;
+        margin-bottom: 20px;
+    }
+    .breadcrumb-item a {
+        color: var(--primary-blue);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    /* Wrapper untuk Form */
+    .form-wrapper {
+        display: flex;
+        justify-content: center;
+        padding: 40px 0;
+        animation: fadeIn 0.6s ease-out;
+    }
+
+    /* Card Utama */
+    .form-card {
+        background: white;
+        border-radius: 30px;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.05);
+        overflow: hidden;
+        width: 100%;
+        max-width: 700px;
+        border: 1px solid rgba(0,0,0,0.02);
+    }
+
+    /* Header Form */
+    .form-header {
+        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+        padding: 40px;
+        color: white;
+        text-align: center;
+    }
+
+    .form-header i {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        display: block;
+    }
+
+    .form-header h2 {
+        font-weight: 800;
+        letter-spacing: -1px;
+        margin-bottom: 5px;
+    }
+
+    /* Body Form */
+    .form-body {
+        padding: 40px;
+    }
+
+    /* Styling Label & Input */
+    .form-label {
+        font-weight: 700;
+        color: #1e293b;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 10px;
+        display: block;
+    }
+
+    /* Menargetkan Input & Textarea Django */
+    input[type="text"], select, textarea {
+        width: 100%;
+        border: 2px solid #f1f5f9;
+        border-radius: 15px;
+        padding: 12px 18px;
+        transition: 0.3s;
+        background-color: #fcfdfe;
+        font-size: 1rem;
+    }
+
+    input:focus, select:focus, textarea:focus {
+        border-color: var(--primary-blue);
+        background-color: white;
+        box-shadow: 0 0 0 4px rgba(0, 97, 255, 0.1);
+        outline: none;
+    }
+
+    textarea {
+        min-height: 150px;
+        resize: vertical;
+    }
+
+    /* Container Tombol */
+    .button-group {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 15px;
+        margin-top: 30px;
+    }
+
+    .btn-submit {
+        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+        border: none;
+        border-radius: 15px;
+        padding: 15px;
+        color: white;
+        font-weight: 700;
+        transition: 0.3s;
+        box-shadow: 0 10px 20px rgba(0, 97, 255, 0.2);
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 30px rgba(0, 97, 255, 0.3);
+        filter: brightness(1.05);
+    }
+
+    .btn-cancel {
+        background-color: #f1f5f9;
+        border: none;
+        border-radius: 15px;
+        padding: 15px;
+        color: #64748b;
+        font-weight: 700;
+        text-decoration: none;
+        text-align: center;
+        transition: 0.3s;
+    }
+
+    .btn-cancel:hover {
+        background-color: #e2e8f0;
+        color: #1e293b;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<div class="container">
+    <nav aria-label="breadcrumb" class="mt-4">
+        <ol class="breadcrumb breadcrumb-modern">
+            <li class="breadcrumb-item"><a href="{% url 'home_page' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'report_list' %}">Laporan</a></li>
+            <li class="breadcrumb-item active" aria-current="page text-muted">Buat Laporan</li>
+        </ol>
+    </nav>
+
+    <div class="form-wrapper">
+        <div class="form-card">
+            <div class="form-header">
+                <i class="bi bi-pencil-square"></i>
+                <h2>Form Pelaporan Masalah</h2>
+                <p class="opacity-75 mb-0 small">Sampaikan kendala infrastruktur kota Anda secara detail</p>
             </div>
-        </form>
+
+            <div class="form-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    {% for field in form %}
+                    <div class="mb-4">
+                        <label class="form-label" for="{{ field.id_for_label }}">
+                            <i class="bi bi-dot text-primary"></i> {{ field.label }}
+                        </label>
+                        {{ field }}
+                        {% if field.help_text %}
+                            <small class="text-muted d-block mt-1">{{ field.help_text }}</small>
+                        {% endif %}
+                        {% for error in field.errors %}
+                            <div class="text-danger small mt-1 fw-bold">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+
+                    <div class="button-group">
+                        <button type="submit" class="btn-submit">
+                            <i class="bi bi-send-fill me-2"></i> Kirim Laporan Sekarang
+                        </button>
+                        <a href="{% url 'report_list' %}" class="btn-cancel">
+                            Kembali
+                        </a>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="text-center pb-4 text-muted small">
+                IET City Reporting Hub &copy; 2026
+            </div>
+        </div>
     </div>
 </div>
-
-<script>
-    // Loading Feedback [cite: 244]
-    document.getElementById('submit-form').onsubmit = function() {
-        let btn = document.getElementById('btn-submit');
-        btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Loading...';
-    };
-</script>
 {% endblock %}

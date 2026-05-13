@@ -1,27 +1,35 @@
 from django.db import models
+from django.conf import settings # Tambahkan import ini
+
+STATUS_CHOICES = [
+    ('DRAFT', 'Draft'),          # Tambahkan pilihan DRAFT
+    ('REPORTED', 'Reported'),
+    ('VERIFIED', 'Verified'),
+    ('IN_PROGRESS', 'In Progress'),
+    ('RESOLVED', 'Resolved'),
+]
 
 class Report(models.Model):
-    # Definisi workflow status [cite: 20-25]
-    STATUS_CHOICES = [
-        ('REPORTED', 'Reported'),
-        ('VERIFIED', 'Verified'),
-        ('IN_PROGRESS', 'In Progress'),
-        ('RESOLVED', 'Resolved'),
-    ]
-
     title = models.CharField(max_length=200)
     category = models.CharField(max_length=100)
     description = models.TextField()
     location = models.CharField(max_length=200)
     
-    # Field status wajib memiliki default [cite: 35, 69]
+    # Tambahkan field reporter (Relasi ke CustomUser)
+    reporter = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='reports',
+        null=True,
+        blank=True
+    )
+    
     status = models.CharField(
         max_length=20,
         choices=STATUS_CHOICES,
         default='REPORTED'
     )
     
+    # Tambahkan field jejak waktu
     created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.title
+    updated_at = models.DateTimeField(auto_now=True)

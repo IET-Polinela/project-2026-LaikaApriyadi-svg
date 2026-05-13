@@ -1,45 +1,159 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="row justify-content-center mt-5">
-    <div class="col-md-4">
-        <div class="card shadow border-0">
-            <div class="card-header bg-primary text-white text-center py-3">
-                <h4 class="mb-0 fw-bold"><i class="bi bi-person-circle"></i> Login IET City</h4>
-            </div>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 
-            <div class="card-body p-4">
-                {% if form.errors %}
-                    <div class="alert alert-danger small">
-                        <i class="bi bi-exclamation-triangle-fill"></i> Username atau password salah.
-                    </div>
-                {% endif %}
+<style>
+    :root {
+        --primary-blue: #0061ff;
+        --secondary-blue: #60efff;
+        --soft-bg: #f8fafc;
+    }
 
-                <form method="post">
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        {{ form.as_p }}
-                    </div>
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-primary shadow-sm">
-                            <i class="bi bi-box-arrow-in-right"></i> Masuk
-                        </button>
-                    </div>
-                </form>
+    body {
+        font-family: 'Inter', sans-serif;
+        background-color: var(--soft-bg);
+    }
 
-                <hr class="my-4">
+    /* Container Tengah */
+    .login-wrapper {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
 
-                <div class="text-center mt-3">
-                    <p class="mb-0 text-muted">Belum punya akun?</p>
-                    <a href="{% url 'signup' %}" class="btn btn-outline-success btn-sm mt-2 w-100">
-                        <i class="bi bi-person-plus-fill"></i> Daftar akun baru
-                    </a>
+    /* Card Login Modern */
+    .login-card {
+        background: white;
+        border-radius: 30px;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.05);
+        overflow: hidden;
+        width: 100%;
+        max-width: 450px;
+        border: 1px solid rgba(0,0,0,0.02);
+        animation: slideUp 0.6s ease-out forwards;
+    }
+
+    /* Header Card dengan Gradasi */
+    .login-header {
+        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+        padding: 50px 30px;
+        text-align: center;
+        color: white;
+    }
+
+    .login-header i {
+        font-size: 3rem;
+        margin-bottom: 15px;
+        display: block;
+        filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+    }
+
+    .login-header h2 {
+        font-weight: 800;
+        letter-spacing: -1px;
+        margin-bottom: 5px;
+    }
+
+    /* Form Body */
+    .login-body {
+        padding: 40px;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #64748b;
+        font-size: 0.9rem;
+        margin-bottom: 8px;
+    }
+
+    .form-control {
+        border: 2px solid #f1f5f9;
+        border-radius: 12px;
+        padding: 12px 15px;
+        transition: 0.3s;
+    }
+
+    .form-control:focus {
+        border-color: var(--primary-blue);
+        box-shadow: 0 0 0 4px rgba(0, 97, 255, 0.1);
+    }
+
+    /* Button Modern */
+    .btn-login {
+        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+        border: none;
+        border-radius: 12px;
+        padding: 14px;
+        font-weight: 700;
+        color: white;
+        width: 100%;
+        margin-top: 20px;
+        transition: 0.3s;
+        box-shadow: 0 10px 20px rgba(0, 97, 255, 0.2);
+    }
+
+    .btn-login:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 30px rgba(0, 97, 255, 0.3);
+        color: white;
+    }
+
+    .signup-link {
+        text-align: center;
+        margin-top: 25px;
+        color: #94a3b8;
+        font-size: 0.9rem;
+    }
+
+    .signup-link a {
+        color: var(--primary-blue);
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<div class="login-wrapper">
+    <div class="login-card">
+        <div class="login-header">
+            <i class="bi bi-person-circle"></i>
+            <h2>Masuk ke IET City</h2>
+            <p class="opacity-75 mb-0 small">Silakan masuk untuk mengelola laporan Anda</p>
+        </div>
+
+        <div class="login-body">
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="mb-3">
+                    <label for="id_username" class="form-label">Username</label>
+                    <input type="text" name="username" class="form-control" placeholder="Masukkan username" required id="id_username">
                 </div>
-            </div>
 
-            <div class="card-footer bg-light text-center py-2">
-                <small class="text-muted">Smart City Reporting System &copy; 2026</small>
+                <div class="mb-4">
+                    <label for="id_password" class="form-label">Password</label>
+                    <input type="password" name="password" class="form-control" placeholder="Masukkan password" required id="id_password">
+                </div>
+
+                <button type="submit" class="btn btn-login">
+                    <i class="bi bi-box-arrow-in-right me-2"></i> Masuk Sekarang
+                </button>
+            </form>
+
+            <div class="signup-link">
+                Belum punya akun? <a href="{% url 'signup' %}">Daftar Akun Baru</a>
             </div>
+        </div>
+
+        <div class="text-center pb-4 text-muted" style="font-size: 0.75rem;">
+            Smart City Reporting System &copy; 2026
         </div>
     </div>
 </div>
