@@ -1,121 +1,235 @@
 {% extends 'base.html' %}
 
-{% block title %}Dashboard Statistik IET City{% endblock %}
-
 {% block content %}
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold text-primary">Dashboard Statistik IET City</h2>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+    :root {
+        --primary-blue: #0061ff;
+        --soft-bg: #f8fafc;
+        --card-shadow: 0 10px 30px rgba(0,0,0,0.04);
+    }
+
+    body {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background-color: var(--soft-bg);
+    }
+
+    .dashboard-header {
+        margin-bottom: 40px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .page-title {
+        font-weight: 800;
+        color: #1e293b;
+        letter-spacing: -1px;
+        margin: 0;
+    }
+
+    /* Stats Card Summary */
+    .stat-pill {
+        background: white;
+        padding: 10px 20px;
+        border-radius: 12px;
+        box-shadow: var(--card-shadow);
+        font-weight: 700;
+        font-size: 0.9rem;
+    }
+
+    /* Chart Card Modern */
+    .chart-card {
+        background: white;
+        border-radius: 24px;
+        padding: 30px;
+        box-shadow: var(--card-shadow);
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        height: 100%;
+        transition: 0.3s;
+    }
+
+    .chart-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.06);
+    }
+
+    .chart-title {
+        font-weight: 700;
+        color: #64748b;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 25px;
+        display: flex;
+        align-items: center;
+    }
+
+    .chart-title i { margin-right: 10px; color: var(--primary-blue); }
+
+    /* Table Dashboard Modern */
+    .table-widget {
+        background: white;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: var(--card-shadow);
+        border: 1px solid #f1f5f9;
+    }
+
+    .widget-header {
+        padding: 20px 25px;
+        font-weight: 700;
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .bg-new { background: linear-gradient(135deg, #f59e0b, #d97706); }
+    .bg-done { background: linear-gradient(135deg, #10b981, #059669); }
+
+    .table-modern thead th {
+        background: #f8fafc;
+        font-size: 0.75rem;
+        color: #94a3b8;
+        border: none;
+        padding: 15px 25px;
+    }
+
+    .table-modern tbody td {
+        padding: 18px 25px;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 0.9rem;
+        color: #334155;
+    }
+
+    .fade-in { animation: fadeIn 0.8s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+
+<div class="container py-5 fade-in">
+    <div class="dashboard-header">
         <div>
-            <a href="{% url 'report_list' %}" class="btn btn-outline-secondary btn-sm me-2">
-                <i class="bi bi-arrow-left"></i> Kembali
+            <h1 class="page-title">Analytics IET City</h1>
+            <p class="text-muted small mb-0">Laporan data statistik real-time infrastruktur kota.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <div class="stat-pill text-primary"><i class="bi bi-clock-history me-2"></i>Live Data</div>
+            <a href="{% url 'report_list' %}" class="btn btn-dark px-4 fw-bold" style="border-radius: 12px;">
+                <i class="bi bi-arrow-left me-2"></i>Kembali
             </a>
-            <span class="badge bg-secondary p-2">Data Real-time (1000+ Records)</span>
         </div>
     </div>
 
-    <div class="row mb-5">
-        <div class="col-md-6 mb-4">
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-white fw-bold">Distribusi Status Laporan</div>
-                <div class="card-body"><canvas id="statusChart" style="max-height: 300px;"></canvas></div>
+    <div class="row g-4 mb-5">
+        <div class="col-lg-5">
+            <div class="chart-card">
+                <div class="chart-title"><i class="bi bi-pie-chart-fill"></i>Distribusi Status</div>
+                <canvas id="statusChart"></canvas>
             </div>
         </div>
-        <div class="col-md-6 mb-4">
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-white fw-bold">Jumlah Laporan per Kategori</div>
-                <div class="card-body"><canvas id="categoryChart" style="max-height: 300px;"></canvas></div>
+        <div class="col-lg-7">
+            <div class="chart-card">
+                <div class="chart-title"><i class="bi bi-bar-chart-line-fill"></i>Laporan per Kategori</div>
+                <canvas id="categoryChart"></canvas>
             </div>
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-md-6 mb-4">
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-warning text-dark fw-bold">5 Laporan Baru (REPORTED)</div>
-                <div class="card-body p-0">
-                    <table class="table table-hover mb-0" id="tableReported">
-                        <thead class="table-light"><tr><th>Judul Laporan</th><th>Lokasi</th></tr></thead>
-                        <tbody></tbody>
-                    </table>
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="table-widget">
+                <div class="widget-header bg-new">
+                    <span><i class="bi bi-megaphone-fill me-2"></i>Laporan Baru (REPORTED)</span>
+                    <span class="badge bg-white text-dark rounded-pill">Baru</span>
                 </div>
+                <table class="table table-modern mb-0">
+                    <thead>
+                        <tr><th>JUDUL LAPORAN</th><th class="text-end">LOKASI</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for report in reported_list %}
+                        <tr>
+                            <td class="fw-bold">{{ report.title }}</td>
+                            <td class="text-end text-muted small"><i class="bi bi-geo-alt"></i> {{ report.location }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="2" class="text-center py-4 text-muted small">Tidak ada data laporan baru.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
-        <div class="col-md-6 mb-4">
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-success text-white fw-bold">5 Laporan Selesai (RESOLVED)</div>
-                <div class="card-body p-0">
-                    <table class="table table-hover mb-0" id="tableResolved">
-                        <thead class="table-light"><tr><th>Judul Laporan</th><th>Lokasi</th></tr></thead>
-                        <tbody></tbody>
-                    </table>
+
+        <div class="col-lg-6">
+            <div class="table-widget">
+                <div class="widget-header bg-done">
+                    <span><i class="bi bi-check-circle-fill me-2"></i>Laporan Selesai (RESOLVED)</span>
+                    <span class="badge bg-white text-dark rounded-pill">Sukses</span>
                 </div>
+                <table class="table table-modern mb-0">
+                    <thead>
+                        <tr><th>JUDUL LAPORAN</th><th class="text-end">LOKASI</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for report in resolved_list %}
+                        <tr>
+                            <td class="fw-bold">{{ report.title }}</td>
+                            <td class="text-end text-muted small"><i class="bi bi-geo-alt"></i> {{ report.location }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="2" class="text-center py-4 text-muted small">Belum ada laporan selesai.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        fetch("{% url 'dashboard_api_data' %}")
-            .then(res => res.json())
-            .then(data => {
-                // --- BAGIAN PENTING UNTUK SCREENSHOT POIN 6 ---
-                console.log("=== DEBUG DATA DASHBOARD IET CITY ===");
-                console.log("Raw JSON Data:", data);
-                console.log("Kategori Stats:", data.category_stats);
-                console.log("Status Stats:", data.status_stats);
-                // ----------------------------------------------
+    // 1. Status Chart (Doughnut)
+    const ctxStatus = document.getElementById('statusChart').getContext('2d');
+    new Chart(ctxStatus, {
+        type: 'doughnut',
+        data: {
+            labels: ['Draft', 'Reported', 'Verified', 'In Progress', 'Resolved'],
+            datasets: [{
+                data: [{{ draft_count }}, {{ reported_count }}, {{ verified_count }}, {{ progress_count }}, {{ resolved_count }}],
+                backgroundColor: ['#cbd5e1', '#0061ff', '#3b82f6', '#f59e0b', '#10b981'],
+                borderWidth: 0,
+                hoverOffset: 15
+            }]
+        },
+        options: {
+            plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20, font: { weight: '600' } } } },
+            cutout: '70%'
+        }
+    });
 
-                // Chart Status
-                new Chart(document.getElementById('statusChart').getContext('2d'), {
-                    type: 'doughnut',
-                    data: {
-                        labels: data.status_stats.map(i => i.status),
-                        datasets: [{
-                            data: data.status_stats.map(i => i.count),
-                            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0']
-                        }]
-                    },
-                    options: { responsive: true, maintainAspectRatio: false }
-                });
-
-                // Chart Kategori
-                new Chart(document.getElementById('categoryChart').getContext('2d'), {
-                    type: 'bar',
-                    data: {
-                        labels: data.category_stats.map(i => i.category),
-                        datasets: [{ 
-                            label: 'Jumlah Laporan', 
-                            data: data.category_stats.map(i => i.count), 
-                            backgroundColor: '#4e73df' 
-                        }]
-                    },
-                    options: { 
-                        responsive: true, 
-                        maintainAspectRatio: false,
-                        scales: {
-                            y: { beginAtZero: true }
-                        }
-                    }
-                });
-
-                // Tabel Data
-                const fillTable = (id, list) => {
-                    const el = document.querySelector(id + ' tbody');
-                    if(list && list.length > 0) {
-                        list.forEach(i => {
-                            el.innerHTML += `<tr><td class="small fw-bold">${i.title}</td><td class="small">${i.location}</td></tr>`;
-                        });
-                    } else {
-                        el.innerHTML = '<tr><td colspan="2" class="text-center text-muted small py-3">Tidak ada data</td></tr>';
-                    }
-                };
-                fillTable('#tableReported', data.latest_reported);
-                fillTable('#tableResolved', data.latest_resolved);
-            })
-            .catch(error => console.error("Error fetching dashboard data:", error));
+    // 2. Category Chart (Bar)
+    const ctxCategory = document.getElementById('categoryChart').getContext('2d');
+    new Chart(ctxCategory, {
+        type: 'bar',
+        data: {
+            labels: [{% for cat in category_data %}'{{ cat.category }}',{% endfor %}],
+            datasets: [{
+                label: 'Jumlah Laporan',
+                data: [{% for cat in category_data %}{{ cat.count }},{% endfor %}],
+                backgroundColor: 'rgba(0, 97, 255, 0.8)',
+                borderRadius: 8,
+                barThickness: 30
+            }]
+        },
+        options: {
+            scales: {
+                y: { beginAtZero: true, grid: { display: false } },
+                x: { grid: { display: false } }
+            },
+            plugins: { legend: { display: false } }
+        }
     });
 </script>
 {% endblock %}

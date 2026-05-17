@@ -14,35 +14,13 @@
         background-color: var(--soft-bg);
     }
 
-    /* Page Header */
     .page-title {
         font-weight: 800;
         color: #1e293b;
         letter-spacing: -1px;
     }
 
-    /* Search & Action Bar */
-    .action-bar {
-        background: white;
-        padding: 20px;
-        border-radius: 20px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.03);
-        margin-bottom: 30px;
-    }
-
-    .search-input {
-        border: 2px solid #f1f5f9;
-        border-radius: 12px;
-        padding: 10px 20px;
-        transition: 0.3s;
-    }
-
-    .search-input:focus {
-        border-color: var(--primary-blue);
-        box-shadow: 0 0 0 4px rgba(0, 97, 255, 0.1);
-    }
-
-    /* Modern Table Container */
+    /* Container Tabel Modern */
     .table-container {
         background: white;
         border-radius: 24px;
@@ -68,13 +46,13 @@
         color: #334155;
     }
 
-    /* Custom Alignment Helper */
+    /* Helper Rata Kanan */
     .text-end-custom {
         text-align: right !important;
         padding-right: 40px !important;
     }
 
-    /* Status Badges */
+    /* Badge Status Modern */
     .badge-modern {
         padding: 8px 16px;
         border-radius: 10px;
@@ -82,24 +60,30 @@
         font-size: 0.8rem;
     }
 
-    /* Only Detail Button Style */
-    .btn-detail-main {
-        background: #e0f2fe;
-        color: #0369a1;
-        border-radius: 12px;
-        border: none;
-        padding: 10px 20px;
-        font-weight: 700;
-        transition: 0.3s;
-        width: 100%;
+    /* Styling Tombol Aksi */
+    .btn-action-group {
+        display: inline-flex;
+        gap: 8px;
+    }
+
+    .btn-custom {
+        height: 40px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
+        border-radius: 12px;
+        font-weight: 700;
+        transition: 0.3s;
+        border: none;
     }
 
-    .btn-detail-main:hover {
-        background: #bae6fd;
-        transform: translateY(-2px);
+    .btn-detail-blue { background: #e0f2fe; color: #0369a1; padding: 0 20px; }
+    .btn-edit-yellow { background: #fef3c7; color: #b45309; width: 40px; }
+    .btn-delete-red { background: #fee2e2; color: #b91c1c; width: 40px; }
+
+    .btn-custom:hover {
+        transform: translateY(-3px);
+        filter: brightness(0.95);
     }
 
     .fade-in {
@@ -116,21 +100,19 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h1 class="page-title mb-1">Daftar Laporan</h1>
-            <p class="text-muted small">Pantau status perbaikan infrastruktur kota IET City secara real-time.</p>
+            <p class="text-muted small">Kelola laporan warga IET City dengan transparan dan cepat.</p>
         </div>
-        <a href="{% url 'report_create' %}" class="btn btn-primary px-4 py-2 shadow-sm fw-bold" style="border-radius: 12px; background: var(--primary-blue);">
+        <a href="{% url 'report_create' %}" class="btn btn-primary px-4 py-2 shadow-sm fw-bold" style="border-radius: 12px; background: var(--primary-blue); border: none;">
             <i class="bi bi-plus-lg me-2"></i> Buat Laporan
         </a>
     </div>
 
-    <div class="action-bar d-flex justify-content-between align-items-center">
+    <div class="mb-4 bg-white p-3 rounded-4 shadow-sm d-flex justify-content-between align-items-center">
         <div class="input-group w-50">
             <span class="input-group-text bg-transparent border-end-0 text-muted"><i class="bi bi-search"></i></span>
-            <input type="text" id="searchInput" class="form-control search-input border-start-0" placeholder="Cari laporan...">
+            <input type="text" id="searchInput" class="form-control border-start-0 shadow-none" style="border: 1px solid #f1f5f9; border-radius: 0 12px 12px 0;" placeholder="Cari laporan...">
         </div>
-        <div class="text-muted small fw-medium">
-            Total: <span class="text-dark fw-bold">{{ reports|length }}</span> Laporan
-        </div>
+        <div class="text-muted small">Total: <strong>{{ reports|length }}</strong> Laporan</div>
     </div>
 
     <div class="table-container">
@@ -140,7 +122,7 @@
                     <th style="width: 40%" class="ps-4">Informasi Laporan</th>
                     <th style="width: 25%" class="text-end-custom">Lokasi</th>
                     <th style="width: 15%" class="text-end-custom">Status</th>
-                    <th style="width: 20%" class="text-end-custom">Manajemen</th>
+                    <th style="width: 20%" class="text-end-custom">Aksi</th>
                 </tr>
             </thead>
             <tbody>
@@ -148,29 +130,48 @@
                 <tr>
                     <td class="ps-4">
                         <div class="fw-bold text-dark fs-5 mb-1">{{ report.title }}</div>
-                        <span class="text-muted small"><i class="bi bi-tag-fill me-1"></i> {{ report.category|default:"Layanan Publik" }}</span>
+                        <span class="text-muted small"><i class="bi bi-tag-fill"></i> {{ report.category|default:"Umum" }}</span>
                     </td>
                     <td class="text-end-custom fw-semibold">
-                        <i class="bi bi-geo-alt-fill text-danger me-1"></i> {{ report.location }}
+                        <i class="bi bi-geo-alt-fill text-danger"></i> {{ report.location }}
                     </td>
                     <td class="text-end-custom">
-                        <span class="badge badge-modern bg-primary-subtle text-primary">
-                            {{ report.status }}
-                        </span>
+                        {% if report.status == 'DRAFT' %}
+                            <span class="badge badge-modern bg-secondary-subtle text-secondary border">Draft</span>
+                        {% elif report.status == 'REPORTED' %}
+                            <span class="badge badge-modern bg-primary-subtle text-primary border">Reported</span>
+                        {% elif report.status == 'IN_PROGRESS' %}
+                            <span class="badge badge-modern bg-warning-subtle text-warning-emphasis border">In Progress</span>
+                        {% elif report.status == 'RESOLVED' %}
+                            <span class="badge badge-modern bg-success-subtle text-success border">Resolved</span>
+                        {% else %}
+                            <span class="badge badge-modern bg-light text-dark border">{{ report.status }}</span>
+                        {% endif %}
                     </td>
                     <td class="text-end-custom">
-                        <button class="btn-detail-main btn-detail" 
-                                data-title="{{ report.title }}"
-                                data-location="{{ report.location }}"
-                                data-status="{{ report.get_status_display }}"
-                                data-description="{{ report.description }}">
-                            <i class="bi bi-eye-fill me-2"></i> Detail
-                        </button>
+                        <div class="btn-action-group">
+                            <button class="btn-custom btn-detail-blue btn-detail" 
+                                    data-title="{{ report.title }}"
+                                    data-location="{{ report.location }}"
+                                    data-status="{{ report.get_status_display }}"
+                                    data-description="{{ report.description }}">
+                                <i class="bi bi-eye-fill me-2"></i> Detail
+                            </button>
+
+                            {% if user.is_staff %}
+                                <a href="{% url 'report_update' report.pk %}" class="btn-custom btn-edit-yellow" title="Edit"><i class="bi bi-pencil-fill"></i></a>
+                                <a href="{% url 'report_delete' report.pk %}" class="btn-custom btn-delete-red" title="Hapus" onclick="return confirm('Hapus laporan ini?')"><i class="bi bi-trash3-fill"></i></a>
+                            
+                            {% elif report.status == 'DRAFT' %}
+                                <a href="{% url 'report_update' report.pk %}" class="btn-custom btn-edit-yellow" title="Edit"><i class="bi bi-pencil-fill"></i></a>
+                                <a href="{% url 'report_delete' report.pk %}" class="btn-custom btn-delete-red" title="Hapus" onclick="return confirm('Hapus draf ini?')"><i class="bi bi-trash3-fill"></i></a>
+                            {% endif %}
+                        </div>
                     </td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="4" class="text-center py-5">Belum ada laporan masuk.</td>
+                    <td colspan="4" class="text-center py-5 text-muted">Belum ada laporan masuk.</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -193,16 +194,13 @@
                     <span id="modalStatus" class="badge badge-modern bg-info-subtle text-info"></span>
                 </div>
                 <div class="bg-light p-3 rounded-4 mb-3">
-                    <label class="text-muted small fw-bold text-uppercase">Lokasi Kejadian</label>
-                    <p id="modalLocation" class="mb-0 fw-semibold"></p>
+                    <label class="text-muted small fw-bold text-uppercase d-block mb-1">Lokasi Kejadian</label>
+                    <p id="modalLocation" class="mb-0 fw-semibold text-dark"></p>
                 </div>
                 <div>
-                    <label class="text-muted small fw-bold text-uppercase">Isi Laporan</label>
-                    <p id="modalDescription" class="text-secondary"></p>
+                    <label class="text-muted small fw-bold text-uppercase d-block mb-1">Keterangan Laporan</label>
+                    <p id="modalDescription" class="text-secondary leading-relaxed"></p>
                 </div>
-            </div>
-            <div class="modal-footer border-0">
-                <button type="button" class="btn btn-light w-100 fw-bold" data-bs-dismiss="modal" style="border-radius: 12px;">Tutup</button>
             </div>
         </div>
     </div>
@@ -210,7 +208,7 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // --- LIVE SEARCH ---
+        // --- 1. LIVE SEARCH ---
         const searchInput = document.getElementById('searchInput');
         searchInput.addEventListener('input', function() {
             const query = this.value.toLowerCase();
@@ -219,7 +217,7 @@
             });
         });
 
-        // --- MODAL DETAIL ---
+        // --- 2. MODAL DETAIL ---
         document.querySelector('#reportTable tbody').addEventListener('click', function(e) {
             const btn = e.target.closest('.btn-detail');
             if (!btn) return;
