@@ -11,11 +11,8 @@ urlpatterns = [
     path('accounts/', include('usermanagement_24782079.urls')), 
     path('accounts/', include('django.contrib.auth.urls')),
     path('', include('main_app.urls')),
-    path('admin/', admin.site.urls),
-    path('', include('main_app.urls')), # Panggil urls milik app, bukan folder project
     path('dashboard/', include('dashboard_24782079.urls')),
     path('api/', include('main_app.api_urls')), # Hubungkan ke api_urls.py
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    
 ]

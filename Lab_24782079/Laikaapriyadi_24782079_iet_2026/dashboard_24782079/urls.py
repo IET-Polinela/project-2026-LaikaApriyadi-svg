@@ -1,7 +1,6 @@
 from django.urls import path
-from .views import DashboardMainView, dashboard_api_data
+from .views import dashboard_view
 
 urlpatterns = [
-    path('', DashboardMainView.as_view(), name='dashboard_main'), # Halaman utama dashboard
-    path('api/data/', dashboard_api_data, name='dashboard_api_data'), # API untuk Chart.js
+    path('', dashboard_view, name='dashboard_main'), # Halaman utama dashboard
 ]

@@ -189,15 +189,23 @@
     </div>
 </div>
 
+<script id="dashboard-status-labels" type="application/json">{{ status_labels_json|safe }}</script>
+<script id="dashboard-status-values" type="application/json">{{ status_values_json|safe }}</script>
+<script id="dashboard-category-labels" type="application/json">{{ category_labels_json|safe }}</script>
+<script id="dashboard-category-counts" type="application/json">{{ category_counts_json|safe }}</script>
+
 <script>
     // 1. Status Chart (Doughnut)
     const ctxStatus = document.getElementById('statusChart').getContext('2d');
+    const statusLabels = JSON.parse(document.getElementById('dashboard-status-labels').textContent);
+    const statusValues = JSON.parse(document.getElementById('dashboard-status-values').textContent);
+
     new Chart(ctxStatus, {
         type: 'doughnut',
         data: {
-            labels: ['Draft', 'Reported', 'Verified', 'In Progress', 'Resolved'],
+            labels: statusLabels,
             datasets: [{
-                data: [{{ draft_count }}, {{ reported_count }}, {{ verified_count }}, {{ progress_count }}, {{ resolved_count }}],
+                data: statusValues,
                 backgroundColor: ['#cbd5e1', '#0061ff', '#3b82f6', '#f59e0b', '#10b981'],
                 borderWidth: 0,
                 hoverOffset: 15
@@ -211,13 +219,16 @@
 
     // 2. Category Chart (Bar)
     const ctxCategory = document.getElementById('categoryChart').getContext('2d');
+    const categoryLabels = JSON.parse(document.getElementById('dashboard-category-labels').textContent);
+    const categoryCounts = JSON.parse(document.getElementById('dashboard-category-counts').textContent);
+
     new Chart(ctxCategory, {
         type: 'bar',
         data: {
-            labels: [{% for cat in category_data %}'{{ cat.category }}',{% endfor %}],
+            labels: categoryLabels,
             datasets: [{
                 label: 'Jumlah Laporan',
-                data: [{% for cat in category_data %}{{ cat.count }},{% endfor %}],
+                data: categoryCounts,
                 backgroundColor: 'rgba(0, 97, 255, 0.8)',
                 borderRadius: 8,
                 barThickness: 30

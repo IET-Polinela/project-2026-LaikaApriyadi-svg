@@ -5,44 +5,82 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.decorators import login_required
+from django.db.models import Count
 from .models import Report
-from django.shortcuts import render
-from .models import Report  # Pastikan model Report diimport jika ingin menampilkan total laporan
+
+# --- 1. HOME & DASHBOARD VIEWS ---
 
 def home_view(request):
-    # Mengambil jumlah laporan untuk ditampilkan sebagai statistik kecil
     total_laporan = Report.objects.count()
     return render(request, 'home.html', {'total': total_laporan})
 
-# 1. MIXIN UNTUK OTORISASI
+@login_required
+def dashboard_view(request):
+    # Mengambil jumlah laporan berdasarkan status untuk grafik lingkaran
+    status_counts = Report.objects.values('status').annotate(total=Count('status'))
+    
+    # Inisialisasi dictionary status (pastikan key sesuai dengan pilihan di models.py)
+    stats = {
+        'DRAFT': 0, 
+        'REPORTED': 0, 
+        'VERIFIED': 0, 
+        'IN_PROGRESS': 0, 
+        'RESOLVED': 0
+    }
+    
+    for item in status_counts:
+        # Kita pakai .upper() untuk jaga-jaga jika di DB tersimpan huruf kecil
+        status_name = item['status'].upper()
+        if status_name in stats:
+            stats[status_name] = item['total']
+
+    # Mengambil data kategori untuk grafik batang
+    category_qs = Report.objects.values('category').annotate(total=Count('category'))
+    cat_labels = [item['category'] for item in category_qs]
+    cat_values = [item['total'] for item in category_qs]
+
+    context = {
+        'draft': stats['DRAFT'],
+        'reported': stats['REPORTED'],
+        'verified': stats['VERIFIED'],
+        'in_progress': stats['IN_PROGRESS'],
+        'resolved': stats['RESOLVED'],
+        'cat_labels': cat_labels,
+        'cat_values': cat_values,
+        'total_laporan': Report.objects.count(),
+    }
+    return render(request, 'dashboard.html', context)
+
+# --- 2. MIXIN UNTUK OTORISASI ---
+
 class AdminRequiredMixin(UserPassesTestMixin):
     def test_func(self):
-        return self.request.user.is_authenticated and self.request.user.is_admin
+        # Sesuaikan dengan field admin di model User lu (is_admin atau is_staff)
+        return self.request.user.is_authenticated and (getattr(self.request.user, 'is_admin', False) or self.request.user.is_staff)
 
     def handle_no_permission(self):
         messages.error(self.request, "Akses Ditolak: Fitur ini hanya untuk Admin!")
         return redirect('report_list')
 
-# 2. VIEW DAFTAR LAPORAN
+# --- 3. CRUD REPORT VIEWS ---
+
 class ReportListView(ListView):
     model = Report
     template_name = 'main_app/report_list.html'
     context_object_name = 'reports'
 
-# 3. VIEW DETAIL
 class ReportDetailView(LoginRequiredMixin, DetailView):
     model = Report
     template_name = 'main_app/report_detail.html'
 
-# 4. VIEW TAMBAH LAPORAN
 class ReportCreateView(LoginRequiredMixin, AdminRequiredMixin, SuccessMessageMixin, CreateView):
     model = Report
     fields = ['title', 'category', 'description', 'location']
     template_name = 'main_app/report_form.html'
     success_url = reverse_lazy('report_list')
-    success_message = "Laporan baru berhasil dibuat oleh Admin!"
+    success_message = "Laporan baru berhasil dibuat!"
 
-# 5. VIEW UPDATE LAPORAN
 class ReportUpdateView(LoginRequiredMixin, AdminRequiredMixin, SuccessMessageMixin, UpdateView):
     model = Report
     fields = ['title', 'category', 'description', 'location', 'status']
@@ -50,7 +88,6 @@ class ReportUpdateView(LoginRequiredMixin, AdminRequiredMixin, SuccessMessageMix
     success_url = reverse_lazy('report_list')
     success_message = "Laporan berhasil diperbarui!"
 
-# 6. VIEW HAPUS LAPORAN
 class ReportDeleteView(LoginRequiredMixin, AdminRequiredMixin, DeleteView):
     model = Report
     template_name = 'main_app/report_confirm_delete.html'
@@ -60,7 +97,6 @@ class ReportDeleteView(LoginRequiredMixin, AdminRequiredMixin, DeleteView):
         messages.warning(self.request, "Laporan telah dihapus!")
         return super().delete(request, *args, **kwargs)
 
-# 7. VIEW UPDATE STATUS
 class ReportUpdateStatusView(LoginRequiredMixin, AdminRequiredMixin, View):
     def post(self, request, pk):
         report = get_object_or_404(Report, pk=pk)
@@ -70,18 +106,10 @@ class ReportUpdateStatusView(LoginRequiredMixin, AdminRequiredMixin, View):
         messages.success(request, f"Status diperbarui menjadi {new_status}")
         return redirect('report_list')
 
-# --- TAMBAHAN UNTUK MENU NAVBAR (ABOUT & CONTACT) ---
+# --- 4. NAVBAR VIEWS ---
 
 def about_view(request):
     return render(request, 'about.html')
 
 def contact_view(request):
     return render(request, 'contact.html')
-
-def home_view(request):
-    total_laporan = Report.objects.count()
-    return render(request, 'home.html', {'total': total_laporan})
-
-def home_view(request):
-    # Logika sederhana untuk menampilkan halaman home
-    return render(request, 'home.html')
