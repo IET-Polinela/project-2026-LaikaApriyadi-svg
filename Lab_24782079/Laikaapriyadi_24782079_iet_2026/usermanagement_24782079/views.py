@@ -6,7 +6,6 @@ from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.views import LoginView, LogoutView
-
 # Import Model dan Form
 from main_app.models import Report
 from .forms import UniversalSignUpForm

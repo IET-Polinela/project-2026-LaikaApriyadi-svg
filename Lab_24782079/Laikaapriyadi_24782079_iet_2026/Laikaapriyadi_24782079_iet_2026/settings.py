@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'main_app',
     'about',
     'contacts',
+    'corsheaders',
     'usermanagement_24782079',
     'dashboard_24782079',
     'rest_framework',
@@ -47,10 +48,11 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  
+    'django.middleware.security.SecurityMiddleware',  #
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    #'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -151,3 +153,5 @@ AUTH_PASSWORD_VALIDATORS = []
 # Redirect setelah Login/Logout [
 LOGIN_REDIRECT_URL = 'report_list'
 LOGOUT_REDIRECT_URL = 'login'
+
+CORS_ALLOW_ALL_ORIGINS = True
