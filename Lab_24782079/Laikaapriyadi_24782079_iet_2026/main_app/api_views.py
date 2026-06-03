@@ -1,35 +1,56 @@
 from rest_framework import viewsets, permissions
+from rest_framework.pagination import PageNumberPagination  # <--- WAJIB TAMBAHKAN INI
 from .models import Report
 from .serializers import ReportSerializer
 from .permissions import IsOwnerAndDraftOrReadOnly
 from django.db.models import Q
 
+# 1. Aktivasi PageNumberPagination dengan ukuran page size = 10 (Figure 1)
+class ReportPagination(PageNumberPagination):
+    page_size = 10  # Maksimal 10 item per halaman
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+
 class ReportViewSet(viewsets.ModelViewSet):
-    queryset = Report.objects.all()
     serializer_class = ReportSerializer
+    pagination_class = ReportPagination  # <--- DAFTARKAN PAGINASI DI SINI
 
     def get_permissions(self):
         """
         Menentukan izin berdasarkan aksi yang dilakukan. 
         """
-        # Jika user ingin edit (update) atau hapus (destroy) [cite: 58]
         if self.action in ['update', 'partial_update', 'destroy']:
-            # Wajib login DAN lolos pengecekan Satpam Draft [cite: 59]
             return [permissions.IsAuthenticated(), IsOwnerAndDraftOrReadOnly()]
-        
-        # Untuk aksi lainnya (List, Detail, Create), cukup login saja [cite: 60]
         return [permissions.IsAuthenticated()]
 
     def perform_create(self, serializer):
         """
-        Mengisi field 'reporter' secara otomatis dari user yang sedang login. [cite: 51, 61, 62]
+        Mengisi field 'reporter' secara otomatis dari user yang sedang login.
         """
-        # Ini mencegah user 'menembak' nama reporter lain via JSON [cite: 62, 75]
         serializer.save(reporter=self.request.user)
 
     def get_queryset(self):
         user = self.request.user
+        
+        # 2. Mekanisme sorting berdasarkan tanggal pembaruan terkini (Figure 1)
+        queryset = Report.objects.all().order_by('-updated_at')
+        
+        # Jika user adalah Staff/Admin, berikan akses penuh melihat semua data
         if user.is_staff:
-            return Report.objects.all() # Admin lihat semua
-        # Citizen cuma lihat laporan yang sudah REPORTED atau DRAFT milik sendiri
-        return Report.objects.filter(Q(status='REPORTED') | Q(reporter=user)) 
+            return queryset
+
+        # 3. Server Side Filtering: Membaca parameter tab dari URL (Figure 1)
+        # API dipanggil dalam format: /api/report/?tab=${tab}
+        tab = self.request.query_params.get('tab', None)
+        
+        if tab == 'my_reports':
+            # Jika ?tab=my_reports -> kembalikan hanya laporan milik user yang sedang login (Figure 1)[cite: 2]
+            queryset = queryset.filter(reporter=user)
+        elif tab == 'feed':
+            # Jika ?tab=feed -> kembalikan laporan dari warga lain yang statusnya BUKAN DRAFT (Figure 1)[cite: 2]
+            queryset = queryset.filter(~Q(reporter=user) & ~Q(status='DRAFT'))
+        else:
+            # Kondisi default: Mengembalikan laporan publik atau draf milik sendiri (Figure 1)[cite: 2]
+            queryset = queryset.filter(~Q(status='DRAFT') | Q(status='DRAFT', reporter=user))
+            
+        return queryset

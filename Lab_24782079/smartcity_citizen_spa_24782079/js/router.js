@@ -1,6 +1,5 @@
 // js/router.js
 
-// Definisi template HTML halaman SPA menggunakan format backtick ( ` )
 const routes = {
     '#login': `
         <div class="row justify-content-center pt-5">
@@ -21,22 +20,51 @@ const routes = {
     '#dashboard': `
         <div class="row g-4">
             <aside class="col-12 col-lg-3">
-                <div class="card border-0 p-3 shadow-sm sticky-top" style="top: 20px; border-radius: 16px;">
-                    <button class="btn btn-primary btn-lg w-100 fw-bold mb-3" style="border-radius: 12px;">
+                <div class="card border-0 p-3 shadow-sm mb-3" style="border-radius: 16px;">
+                    <button onclick="editingReportId=null; document.getElementById('reportForm').reset(); document.getElementById('reportModalLabel').innerText='Buat Laporan Baru';" 
+                            data-bs-toggle="modal" data-bs-target="#reportModal" 
+                            class="btn btn-primary btn-lg w-100 fw-bold mb-3" style="border-radius: 12px;">
                         <i class="bi bi-plus-circle-fill me-2"></i>Laporan Baru
                     </button>
-                    <button onclick="handleLogout()" class="btn btn-outline-danger w-100 fw-bold" style="border-radius: 12px;">
-                        <i class="bi bi-box-arrow-right me-2"></i>Keluar
-                    </button>
+                    
+                    <div class="list-group list-group-flush small">
+                        <div class="list-group-item d-flex justify-content-between align-items-center border-0 px-0">
+                            <span><i class="bi bi-file-earmark-text me-2"></i>Draft Saya</span>
+                            <span id="stat-draft" class="badge bg-secondary rounded-pill">0</span>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center border-0 px-0">
+                            <span><i class="bi bi-clock-history me-2"></i>Diproses</span>
+                            <span id="stat-process" class="badge bg-warning rounded-pill">0</span>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center border-0 px-0">
+                            <span><i class="bi bi-check-circle me-2"></i>Selesai</span>
+                            <span id="stat-done" class="badge bg-success rounded-pill">0</span>
+                        </div>
+                    </div>
                 </div>
+                <button onclick="handleLogout()" class="btn btn-outline-danger w-100 fw-bold" style="border-radius: 12px;">
+                    <i class="bi bi-box-arrow-right me-2"></i>Keluar
+                </button>
             </aside>
             
             <section class="col-12 col-lg-6">
-                <div class="card border-0 p-5 shadow-sm text-center text-muted" style="border: 2px dashed #cbd5e1; border-radius: 24px;">
-                    <i class="bi bi-inbox fs-1 text-primary mb-3"></i>
-                    <h5 class="fw-bold text-dark">Selamat Datang di Citizen Portal!</h5>
-                    <p class="small text-muted mb-0">Koneksi API untuk data laporan real-time akan diimplementasikan pada Lab 12.</p>
+                <ul class="nav nav-pills mb-3 bg-white p-2 shadow-sm d-flex" style="border-radius: 12px;">
+                    <li class="nav-item flex-fill">
+                        <button onclick="switchTab('my_reports')" id="tab-my_reports" class="nav-link w-100 active fw-bold">Laporan Saya</button>
+                    </li>
+                    <li class="nav-item flex-fill">
+                        <button onclick="switchTab('feed')" id="tab-feed" class="nav-link w-100 fw-bold text-muted">Feed Kota</button>
+                    </li>
+                </ul>
+
+                <div id="listContainer" class="row g-3">
+                    <div class="text-center p-5">
+                        <div class="spinner-border text-primary" role="status"></div>
+                        <p class="mt-2 text-muted">Menarik data dari API...</p>
+                    </div>
                 </div>
+
+                <nav id="paginationContainer" class="mt-4 d-flex justify-content-center"></nav>
             </section>
             
             <aside class="col-12 col-lg-3 d-none d-lg-block">
@@ -44,9 +72,22 @@ const routes = {
                     <h6 class="fw-bold text-primary mb-3">
                         <i class="bi bi-info-circle-fill me-2"></i>Info Kilat
                     </h6>
-                    <p class="small text-muted mb-0">Arsitektur aplikasi sukses dikonfigurasi menggunakan modul mandiri HeadlessFrontend SPA.</p>
+                    <p class="small text-muted mb-0">Interface kini terhubung otomatis dengan data real-time melalui optimasi Fetch API[cite: 14].</p>
                 </div>
             </aside>
         </div>
     `
 };
+
+// Fungsi pembantu untuk visual tab di router
+function switchTab(tab) {
+    document.querySelectorAll('.nav-link').forEach(el => {
+        el.classList.remove('active');
+        el.classList.add('text-muted');
+    });
+    document.getElementById('tab-' + tab).classList.add('active');
+    document.getElementById('tab-' + tab).classList.remove('text-muted');
+    
+    // Panggil fungsi penarik data dari app.js [cite: 88, 90]
+    loadDashboardData(tab, 1);
+}

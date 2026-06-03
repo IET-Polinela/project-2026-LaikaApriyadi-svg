@@ -12,8 +12,8 @@ function setupLoginForm() {
         const passwordInput = document.getElementById('loginPassword').value;
 
         try {
-            // Mengirim data ke endpoint token JWT Django DRF
-            const response = await requestAPI('/api/token/', 'POST', {
+            // PERBAIKAN: Gunakan '/token/' saja karena '/api' sudah ada di BASE_URL api.js
+            const response = await requestAPI('/token/', 'POST', {
                 username: usernameInput,
                 password: passwordInput
             });
@@ -25,15 +25,14 @@ function setupLoginForm() {
                 localStorage.setItem('access_token', data.access);
                 localStorage.setItem('refresh_token', data.refresh);
                 
-                alert('Login Berhasil, Selamat Datang!');
-                
-                // Pindah rute halaman secara dinamis
+                // Opsional: Langsung pindah tanpa alert biar kerasa kayak aplikasi modern
                 window.location.hash = '#dashboard';
             } else {
                 alert('Login Gagal! Periksa kembali username dan password Anda.');
             }
         } catch (error) {
-            alert('Gagal menghubungi server backend!');
+            console.error("Auth Error:", error);
+            alert('Gagal menghubungi server backend! Pastikan server Django jalan.');
         }
     });
 }
@@ -42,6 +41,7 @@ function handleLogout() {
     // Bersihkan seluruh token dari memori lokal browser
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
-    alert('Anda telah keluar.');
+    
+    // Redirect ke login
     window.location.hash = '#login';
 }
