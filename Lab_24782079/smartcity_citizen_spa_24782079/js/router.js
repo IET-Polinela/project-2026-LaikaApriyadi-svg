@@ -27,17 +27,30 @@ const routes = {
                         <i class="bi bi-plus-circle-fill me-2"></i>Laporan Baru
                     </button>
                     
+                    <!-- ========================================== -->
+                    <!-- SINKRONISASI 5 STATUS SESUAI IMAGE_5CD41E  -->
+                    <!-- ========================================== -->
                     <div class="list-group list-group-flush small">
-                        <div class="list-group-item d-flex justify-content-between align-items-center border-0 px-0">
-                            <span><i class="bi bi-file-earmark-text me-2"></i>Draft Saya</span>
+                        <h6 class="fw-bold mb-3 mt-1 text-secondary"><i class="bi bi-graph-up me-2"></i>Rekap Status</h6>
+                        
+                        <div class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 py-2">
+                            <span><i class="bi bi-file-earmark-text me-2 text-muted"></i>Draft Keluhan</span>
                             <span id="stat-draft" class="badge bg-secondary rounded-pill">0</span>
                         </div>
-                        <div class="list-group-item d-flex justify-content-between align-items-center border-0 px-0">
-                            <span><i class="bi bi-clock-history me-2"></i>Diproses</span>
-                            <span id="stat-process" class="badge bg-warning rounded-pill">0</span>
+                        <div class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 py-2">
+                            <span><i class="bi bi-megaphone me-2 text-warning"></i>Total Diajukan</span>
+                            <span id="stat-reported" class="badge bg-warning text-dark rounded-pill">0</span>
                         </div>
-                        <div class="list-group-item d-flex justify-content-between align-items-center border-0 px-0">
-                            <span><i class="bi bi-check-circle me-2"></i>Selesai</span>
+                        <div class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 py-2">
+                            <span><i class="bi bi-patch-check me-2 text-info"></i>Terverifikasi</span>
+                            <span id="stat-verified" class="badge bg-info rounded-pill">0</span>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 py-2">
+                            <span><i class="bi bi-clock-history me-2 text-primary"></i>Sedang Diproses</span>
+                            <span id="stat-process" class="badge bg-primary rounded-pill">0</span>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 py-2">
+                            <span><i class="bi bi-check-circle me-2 text-success"></i>Selesai Ditangani</span>
                             <span id="stat-done" class="badge bg-success rounded-pill">0</span>
                         </div>
                     </div>
@@ -72,7 +85,7 @@ const routes = {
                     <h6 class="fw-bold text-primary mb-3">
                         <i class="bi bi-info-circle-fill me-2"></i>Info Kilat
                     </h6>
-                    <p class="small text-muted mb-0">Interface kini terhubung otomatis dengan data real-time melalui optimasi Fetch API[cite: 14].</p>
+                    <p class="small text-muted mb-0">Interface kini terhubung otomatis dengan data real-time melalui optimasi Fetch API.</p>
                 </div>
             </aside>
         </div>
@@ -88,6 +101,8 @@ function switchTab(tab) {
     document.getElementById('tab-' + tab).classList.add('active');
     document.getElementById('tab-' + tab).classList.remove('text-muted');
     
-    // Panggil fungsi penarik data dari app.js [cite: 88, 90]
-    loadDashboardData(tab, 1);
+    // Panggil fungsi penarik data dari app.js
+    if (typeof loadDashboardData === 'function') {
+        loadDashboardData(tab, 1);
+    }
 }

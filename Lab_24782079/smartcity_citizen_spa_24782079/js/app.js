@@ -1,12 +1,12 @@
 // js/app.js
 
-// 1. VARIABEL GLOBAL UNTUK STATE MANAJEMEN [cite: 90, 126]
+// 1. VARIABEL GLOBAL UNTUK STATE MANAJEMEN
 let currentTab = 'my_reports';
 let currentPage = 1;
 let allReports = [];
 let editingReportId = null;
 
-// 2. FUNGSI ROUTING SPA [cite: 90]
+// 2. FUNGSI ROUTING SPA
 function handleRouting() {
     const hash = window.location.hash || '#login';
     const appContent = document.getElementById('app-content');
@@ -16,30 +16,27 @@ function handleRouting() {
     if (hash === '#login') {
         if (typeof setupLoginForm === 'function') setupLoginForm();
     } else if (hash === '#dashboard') {
-        loadDashboardData(); // Tarik data real-time saat dashboard dimuat 
+        loadDashboardData(); 
     }
 }
 
-// 3. FUNGSI UTAMA: MENARIK DATA API TERPAGINASI (Figure 4) [cite: 87, 88]
+// 3. FUNGSI UTAMA: MENARIK DATA API TERPAGINASI
 async function loadDashboardData(tab = currentTab, page = currentPage) {
     currentTab = tab;
     currentPage = page;
 
-    // Menembak API Backend dengan parameter tab dan halaman [cite: 88, 94]
     const response = await requestAPI(`/report/?tab=${tab}&page=${page}`, 'GET');
 
     if (response && response.status === 200) {
         const responseData = await response.json();
         
-        // INSTRUKSI 1: Ekstraksi Data Paginasi [cite: 96, 97]
         allReports = responseData.results || []; 
         const totalData = responseData.count || 0; 
-        const totalPages = Math.ceil(totalData / 10); // Pembulatan ke atas (Figure 4) [cite: 99]
+        const totalPages = Math.ceil(totalData / 10); 
 
-        // INSTRUKSI 2: Pemicu Perbaruan UI [cite: 101, 102]
-        renderList();          // Menggambar kartu laporan [cite: 103]
-        renderPagination(totalPages); // Menggambar tombol halaman [cite: 104]
-        loadSummaryStats();    // Update rekap sidebar [cite: 123]
+        renderList();          
+        renderPagination(totalPages); 
+        loadSummaryStats();    
         
     } else {
         const listContainer = document.getElementById('listContainer');
@@ -59,18 +56,19 @@ function renderList() {
     if (!container) return;
 
     if (allReports.length === 0) {
-        container.innerHTML = '<div class="text-center py-5">Belum ada laporan.</div>';
+        container.innerHTML = '<div class="text-center py-5 text-muted">Belum ada laporan di kategori ini.</div>';
         return;
     }
 
     container.innerHTML = '';
     allReports.forEach(report => {
-        // Logika Progress Bar berdasarkan status [cite: 7]
+        // Logika Progress Bar & Warna Status
         let pWidth = '20%'; let pBg = 'bg-secondary';
-        if (report.status === 'REPORTED') { pWidth = '50%'; pBg = 'bg-warning'; }
+        if (report.status === 'REPORTED') { pWidth = '40%'; pBg = 'bg-warning'; }
+        else if (report.status === 'VERIFIED') { pWidth = '60%'; pBg = 'bg-info'; }
+        else if (report.status === 'IN_PROGRESS') { pWidth = '80%'; pBg = 'bg-primary'; }
         else if (report.status === 'RESOLVED') { pWidth = '100%'; pBg = 'bg-success'; }
 
-        // Tombol Edit hanya untuk DRAFT milik sendiri [cite: 143]
         const editBtn = (report.is_owner && report.status === 'DRAFT') 
             ? `<button onclick="editDraft(${report.id})" class="btn btn-sm btn-outline-primary fw-bold">Edit Draft</button>` : '';
 
@@ -78,14 +76,14 @@ function renderList() {
             <div class="col-12 mb-3">
                 <div class="card border-0 shadow-sm p-3" style="border-radius: 16px;">
                     <div class="d-flex justify-content-between mb-2">
-                        <span class="badge bg-light text-primary">${report.category}</span>
-                        <small class="text-muted">${report.location}</small>
+                        <span class="badge bg-light text-primary border">${report.category}</span>
+                        <small class="text-muted"><i class="bi bi-geo-alt me-1"></i>${report.location}</small>
                     </div>
                     <h5 class="fw-bold">${report.title}</h5>
-                    <p class="small text-secondary">${report.description}</p>
-                    <div class="progress mb-2" style="height: 6px;"><div class="progress-bar ${pBg}" style="width: ${pWidth}"></div></div>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <small class="text-muted">Oleh: ${report.reporter}</small>
+                    <p class="small text-secondary text-truncate">${report.description}</p>
+                    <div class="progress mb-2" style="height: 6px;"><div class="progress-bar progress-bar-striped progress-bar-animated ${pBg}" style="width: ${pWidth}"></div></div>
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                        <small class="text-muted text-capitalize">Oleh: ${report.reporter}</small>
                         ${editBtn}
                     </div>
                 </div>
@@ -107,19 +105,28 @@ function renderPagination(total) {
     container.innerHTML = html + '</ul>';
 }
 
-// 6. FUNGSI REKAP STATUS SIDEBAR (BYPASS PAGINATION) [cite: 119, 120]
+// 6. FUNGSI REKAP STATUS SIDEBAR (BYPASS PAGINATION) - 5 STATUS SINKRON DENGAN ROUTER.JS
 async function loadSummaryStats() {
     const res = await requestAPI(`/report/?tab=my_reports&page_size=1000`, 'GET');
     if (res && res.status === 200) {
         const data = await res.json();
         const r = data.results || [];
-        document.getElementById('stat-draft').innerText = r.filter(x => x.status === 'DRAFT').length;
-        document.getElementById('stat-process').innerText = r.filter(x => x.status === 'REPORTED').length;
-        document.getElementById('stat-done').innerText = r.filter(x => x.status === 'RESOLVED').length;
+        
+        // Memasukkan angka ke elemen ID yang sudah kita buat di router.js
+        if(document.getElementById('stat-draft')) 
+            document.getElementById('stat-draft').innerText = r.filter(x => x.status === 'DRAFT').length;
+        if(document.getElementById('stat-reported'))
+            document.getElementById('stat-reported').innerText = r.filter(x => x.status === 'REPORTED').length;
+        if(document.getElementById('stat-verified'))
+            document.getElementById('stat-verified').innerText = r.filter(x => x.status === 'VERIFIED').length;
+        if(document.getElementById('stat-process'))
+            document.getElementById('stat-process').innerText = r.filter(x => x.status === 'IN_PROGRESS').length;
+        if(document.getElementById('stat-done'))
+            document.getElementById('stat-done').innerText = r.filter(x => x.status === 'RESOLVED').length;
     }
 }
 
-// 7. MANAJEMEN MODAL: EDIT & SUBMIT [cite: 124, 127, 129]
+// 7. MANAJEMEN MODAL: EDIT & SUBMIT
 function editDraft(id) {
     const report = allReports.find(r => r.id === id);
     if (!report) return;
@@ -141,22 +148,22 @@ async function handleSave(status) {
         status: status
     };
 
-    const method = editingReportId ? 'PUT' : 'POST'; // [cite: 131, 132]
-    const path = editingReportId ? `/report/${editingReportId}/` : '/report/'; 
+    const method = editingReportId ? 'PUT' : 'POST'; 
+    const path = editingReportId ? `/report/${editingReportId}/` : '/report/';
     
     const response = await requestAPI(path, method, payload);
     if (response.status === 201 || response.status === 200) {
         bootstrap.Modal.getInstance(document.getElementById('reportModal')).hide();
         document.getElementById('reportForm').reset();
         editingReportId = null;
-        loadDashboardData(); // Panggil ulang data lokal [cite: 134, 146]
+        loadDashboardData(); 
     }
 }
 
-// Inisialisasi tombol di modal (Gunakan type="button" di HTML!) [cite: 147, 148]
+// Event Delegation untuk tombol modal
 document.addEventListener('click', e => {
-    if (e.target.id === 'btnSubmit') handleSave('REPORTED');
-    if (e.target.id === 'btnDraft') handleSave('DRAFT');
+    if (e.target.id === 'btnSubmit' || e.target.closest('#btnSubmit')) handleSave('REPORTED');
+    if (e.target.id === 'btnDraft' || e.target.closest('#btnDraft')) handleSave('DRAFT');
 });
 
 window.addEventListener('hashchange', handleRouting);
