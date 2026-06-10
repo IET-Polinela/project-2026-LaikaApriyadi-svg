@@ -25,7 +25,9 @@ SECRET_KEY = 'django-insecure-uib!5_5e42ac3*$btjh+@)$m4#yhr5+9hwonx()#r@(x3%472^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
+CORS_ALLOW_ALL_ORIGINS = True
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 
 # Application definition
@@ -73,8 +75,7 @@ REST_FRAMEWORK = {
 }
 
 
-ROOT_URLCONF = 'Laikaapriyadi_24782079_iet_2026.urls'
-
+ROOT_URLCONF = 'smartcity_app.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -91,7 +92,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'Laikaapriyadi_24782079_iet_2026.wsgi.application'
+WSGI_APPLICATION = 'smartcity_app.wsgi.application'
 
 
 # Database
