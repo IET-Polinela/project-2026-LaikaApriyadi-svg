@@ -100,12 +100,12 @@ WSGI_APPLICATION = 'smartcity_app.wsgi.application'
 
 DATABASES = {
     'default': {
-        'USER': 'postgres',
-        'PASSWORD': '123', # Sesuaikan password Anda
-        'HOST': 'localhost',
-        'PORT': '5432',
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'nama_database_kamu',       # Sesuaikan dengan instruksi dosen
+        'USER': 'postgres',                  # Sesuaikan jika ada user khusus dari dosen
+        'PASSWORD': '123',                   # Sesuaikan dengan password database kampus
+        'HOST': '127.0.0.1',                 # Biasanya localhost/127.0.0.1 jika db di server yang sama
+        'PORT': '5432',                      # Port standar PostgreSQL
     }
 }
 
