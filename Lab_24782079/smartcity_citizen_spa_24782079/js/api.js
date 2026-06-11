@@ -2,9 +2,10 @@
 const BASE_URL = "http://103.151.63.87:8010";
 
 async function requestAPI(endpoint, method = 'GET', bodyData = null) {
-    // TAMBAHAN OTOMATIS: Jika endpoint lupa pakai '/api/', kita sisipkan langsung di sini
+    // PROTEKSI OTOMATIS: Memastikan semua endpoint mengarah ke /api/...
     let urutanEndpoint = endpoint;
-    if (endpoint.startsWith('/token/') || endpoint.startsWith('/token/refresh/')) {
+    if (!endpoint.startsWith('/api/')) {
+        // Jika endpoint diawali tanda slash seperti '/laporan', ubah jadi '/api/laporan'
         urutanEndpoint = `/api${endpoint}`;
     }
 
