@@ -2,8 +2,8 @@ name: Deploy Frontend SPA to GitHub Pages
 
 on:
   push:
-    branches: ["main", "master"] # Robot otomatis jalan saat kamu melakukan git push ke branch main atau master
-  workflow_dispatch: # Mengizinkan kamu untuk menjalankan ulang secara manual dari halaman web GitHub
+    branches: ["main", "master"]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -30,8 +30,7 @@ jobs:
       - name: Upload artifact (Hanya Folder Frontend)
         uses: actions/upload-pages-artifact@v3
         with:
-          # WAJIB SAMA PERSIS dengan nama folder frontend SPA kamu di VS Code!
-          path: './smartcity_citizen_spa_24782079'
+          path: './Lab_24782079/smartcity_citizen_spa_24782079'
 
       - name: Deploy to GitHub Pages
         id: deployment
