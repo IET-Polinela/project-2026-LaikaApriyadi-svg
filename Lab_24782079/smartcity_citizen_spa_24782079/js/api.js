@@ -11,7 +11,6 @@ async function requestAPI(endpoint, method = 'GET', bodyData = null) {
         'Content-Type': 'application/json'
     };
     
-    // Jika token eksis di memori browser, pasang ke Header Authorization
     if (token) {
         headers['Authorization'] = `Bearer ${token}`;
     }
