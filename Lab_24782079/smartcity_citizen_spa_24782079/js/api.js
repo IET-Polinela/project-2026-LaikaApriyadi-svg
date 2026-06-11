@@ -2,7 +2,13 @@
 const BASE_URL = "http://103.151.63.87:8010";
 
 async function requestAPI(endpoint, method = 'GET', bodyData = null) {
-    const url = `${BASE_URL}${endpoint}`;
+    // TAMBAHAN OTOMATIS: Jika endpoint lupa pakai '/api/', kita sisipkan langsung di sini
+    let urutanEndpoint = endpoint;
+    if (endpoint.startsWith('/token/') || endpoint.startsWith('/token/refresh/')) {
+        urutanEndpoint = `/api${endpoint}`;
+    }
+
+    const url = `${BASE_URL}${urutanEndpoint}`;
     
     // Ambil access token secara otomatis dari localStorage
     const token = localStorage.getItem('access_token');
