@@ -98,14 +98,16 @@ WSGI_APPLICATION = 'smartcity_app.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+# Di dalam settings.py lu mbut, ubah jadi seperti ini:
+# Di dalam settings.py lu, pastikan bagian DATABASES isinya ini:
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'nama_database_kamu',       # Sesuaikan dengan instruksi dosen
-        'USER': 'postgres',                  # Sesuaikan jika ada user khusus dari dosen
-        'PASSWORD': '123',                   # Sesuaikan dengan password database kampus
-        'HOST': '127.0.0.1',                 # Biasanya localhost/127.0.0.1 jika db di server yang sama
-        'PORT': '5432',                      # Port standar PostgreSQL
+        'NAME': 'smartcity_db',
+        'USER': 'postgres',
+        'PASSWORD': '123',       
+        'HOST': '127.0.0.1',
+        'PORT': '5432',
     }
 }
 
