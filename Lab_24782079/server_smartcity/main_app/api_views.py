@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema
 from rest_framework import viewsets, permissions
 from rest_framework.pagination import PageNumberPagination  # <--- WAJIB TAMBAHKAN INI
 from .models import Report
@@ -11,6 +12,7 @@ class ReportPagination(PageNumberPagination):
     page_size_query_param = 'page_size'
     max_page_size = 100
 
+# @extend_schema(exclude=True)
 class ReportViewSet(viewsets.ModelViewSet):
     serializer_class = ReportSerializer
     pagination_class = ReportPagination  # <--- DAFTARKAN PAGINASI DI SINI
