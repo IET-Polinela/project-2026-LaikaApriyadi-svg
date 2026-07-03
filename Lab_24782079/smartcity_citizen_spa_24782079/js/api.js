@@ -1,7 +1,7 @@
 // js/api.js
 const BASE_URL = (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost')
     ? "http://127.0.0.1:2479"
-    : "http://<host-publik-iet-srv>:8010";
+    : "http://103.151.63.87:8010";
 
 async function requestAPI(endpoint, method = 'GET', bodyData = null) {
     let urutanEndpoint = endpoint;
