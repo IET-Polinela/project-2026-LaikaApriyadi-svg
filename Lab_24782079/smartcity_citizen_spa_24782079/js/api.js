@@ -1,38 +1,33 @@
 // js/api.js
-const BASE_URL = "http://103.151.63.87:8010";
+const BASE_URL = "http://127.0.0.1:2479";
 
 async function requestAPI(endpoint, method = 'GET', bodyData = null) {
-    // PROTEKSI OTOMATIS: Memastikan semua endpoint mengarah ke /api/...
     let urutanEndpoint = endpoint;
     if (!endpoint.startsWith('/api/')) {
-        // Jika endpoint diawali tanda slash seperti '/laporan', ubah jadi '/api/laporan'
         urutanEndpoint = `/api${endpoint}`;
     }
 
     const url = `${BASE_URL}${urutanEndpoint}`;
-    
-    // Ambil access token secara otomatis dari localStorage
     const token = localStorage.getItem('access_token');
     
-    const headers = {
-        'Content-Type': 'application/json'
-    };
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
     
-    if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-    }
-    
-    const config = {
-        method: method,
-        headers: headers
-    };
-    
+    const config = { method, headers };
     if (bodyData && (method === 'POST' || method === 'PUT' || method === 'PATCH')) {
         config.body = JSON.stringify(bodyData);
     }
     
     try {
         const response = await fetch(url, config);
+
+        // INTERCEPTOR: kalau token expired/invalid, bersihkan & lempar ke login
+        if (response.status === 401) {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            localStorage.removeItem('username');
+            window.location.hash = '#login';
+}
         return response;
     } catch (error) {
         console.error('API Request Error:', error);

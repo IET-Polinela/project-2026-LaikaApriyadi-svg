@@ -10,7 +10,13 @@ let editingReportId = null;
 function handleRouting() {
     const hash = window.location.hash || '#login';
     const appContent = document.getElementById('app-content');
-    
+
+    // GUARD: cegah akses #dashboard tanpa token
+    if (hash === '#dashboard' && !localStorage.getItem('access_token')) {
+        window.location.hash = '#login';
+        return;
+    }
+
     appContent.innerHTML = routes[hash] || routes['#login'];
     
     if (hash === '#login') {
@@ -34,9 +40,9 @@ async function loadDashboardData(tab = currentTab, page = currentPage) {
         const totalData = responseData.count || 0; 
         const totalPages = Math.ceil(totalData / 10); 
 
-        renderList();          
+        renderList();          
         renderPagination(totalPages); 
-        loadSummaryStats();    
+        loadSummaryStats();    
         
     } else {
         const listContainer = document.getElementById('listContainer');
@@ -73,7 +79,7 @@ function renderList() {
             ? `<button onclick="editDraft(${report.id})" class="btn btn-sm btn-outline-primary fw-bold">Edit Draft</button>` : '';
 
         container.innerHTML += `
-            <div class="col-12 mb-3">
+            <div class="col-12 col mb-3">
                 <div class="card border-0 shadow-sm p-3" style="border-radius: 16px;">
                     <div class="d-flex justify-content-between mb-2">
                         <span class="badge bg-light text-primary border">${report.category}</span>
@@ -131,20 +137,20 @@ function editDraft(id) {
     const report = allReports.find(r => r.id === id);
     if (!report) return;
     editingReportId = id;
-    document.getElementById('reportTitle').value = report.title;
-    document.getElementById('reportCategory').value = report.category;
-    document.getElementById('reportLocation').value = report.location;
-    document.getElementById('reportDescription').value = report.description;
+    document.getElementById('inputTitle').value = report.title;
+    document.getElementById('inputCategory').value = report.category;
+    document.getElementById('inputLocation').value = report.location;
+    document.getElementById('inputDescription').value = report.description;
     document.getElementById('reportModalLabel').innerText = "Edit Laporan Draft";
     new bootstrap.Modal(document.getElementById('reportModal')).show();
 }
 
 async function handleSave(status) {
     const payload = {
-        title: document.getElementById('reportTitle').value,
-        category: document.getElementById('reportCategory').value,
-        location: document.getElementById('reportLocation').value,
-        description: document.getElementById('reportDescription').value,
+        title: document.getElementById('inputTitle').value,
+        category: document.getElementById('inputCategory').value,
+        location: document.getElementById('inputLocation').value,
+        description: document.getElementById('inputDescription').value,
         status: status
     };
 
@@ -156,6 +162,14 @@ async function handleSave(status) {
         bootstrap.Modal.getInstance(document.getElementById('reportModal')).hide();
         document.getElementById('reportForm').reset();
         editingReportId = null;
+
+        // Notifikasi sukses (dibutuhkan agar sesuai skenario UI-05)
+        if (status === 'DRAFT') {
+            alert('Laporan berhasil disimpan sebagai DRAFT');
+        } else {
+            alert('Laporan berhasil diajukan');
+        }
+
         loadDashboardData(); 
     }
 }

@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
+
+<style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #0061ff 0%, #60efff 100%);
+        --glass-bg: rgba(255, 255, 255, 0.8);
+    }
+
+    body {
+        font-family: 'Inter', sans-serif;
+        background-color: #f0f2f5;
+    }
+
+    /* Hero Section Modern */
+    .hero-section {
+        background: var(--primary-gradient);
+        border-radius: 30px;
+        padding: 80px 20px;
+        margin-top: 30px;
+        box-shadow: 0 20px 40px rgba(0, 97, 255, 0.2);
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .hero-section::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        left: -10%;
+        width: 300px;
+        height: 300px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+    }
+
+    .display-title {
+        font-weight: 800;
+        font-size: 3.5rem;
+        letter-spacing: -2px;
+        margin-bottom: 20px;
+        text-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .hero-subtitle {
+        font-size: 1.25rem;
+        opacity: 0.9;
+        max-width: 700px;
+        margin: 0 auto 40px;
+        line-height: 1.6;
+    }
+
+    /* Card Fitur Modern */
+    .feature-card {
+        background: white;
+        border: none;
+        border-radius: 20px;
+        padding: 35px;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        height: 100%;
+        text-align: left;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-15px);
+        box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+    }
+
+    .icon-box {
+        width: 60px;
+        height: 60px;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 25px;
+        font-size: 24px;
+        background: #f8f9fa;
+    }
+
+    .card-title-modern {
+        font-weight: 700;
+        color: #1a1a1a;
+        margin-bottom: 15px;
+    }
+
+    /* Animasi muncul pelan */
+    .fade-up {
+        animation: fadeUp 0.8s ease-out forwards;
+    }
+
+    @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<div class="container mb-5">
+    <div class="hero-section text-center fade-up">
+        <h1 class="display-title">Selamat Datang di IET City</h1>
+        <p class="hero-subtitle">
+            Platform Smart City Masa Kini. Kelola laporan warga dengan lebih mudah, 
+            transparan, dan terintegrasi dalam satu ekosistem digital.
+        </p>
+    </div>
+
+    <div class="row g-4 mt-5">
+        <div class="col-lg-4 fade-up" style="animation-delay: 0.2s;">
+            <div class="feature-card border-top border-primary border-5">
+                <div class="icon-box text-primary shadow-sm">
+                    <i class="bi bi-megaphone-fill"></i>
+                </div>
+                <h3 class="card-title-modern">Lapor Cepat</h3>
+                <p class="text-muted">Adukan masalah infrastruktur kota dalam hitungan detik. Kami pastikan setiap suara Anda didengar.</p>
+            </div>
+        </div>
+
+        <div class="col-lg-4 fade-up" style="animation-delay: 0.4s;">
+            <div class="feature-card border-top border-success border-5">
+                <div class="icon-box text-success shadow-sm">
+                    <i class="bi bi-shield-check"></i>
+                </div>
+                <h3 class="card-title-modern">Terverifikasi</h3>
+                <p class="text-muted">Sistem keamanan berlapis menjamin setiap laporan asli dan ditangani oleh petugas berwenang.</p>
+            </div>
+        </div>
+
+        <div class="col-lg-4 fade-up" style="animation-delay: 0.6s;">
+            <div class="feature-card border-top border-info border-5">
+                <div class="icon-box text-info shadow-sm">
+                    <i class="bi bi-graph-up-arrow"></i>
+                </div>
+                <h3 class="card-title-modern">Data Akurat</h3>
+                <p class="text-muted">Pantau perkembangan kota secara real-time melalui REST API yang transparan bagi publik.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

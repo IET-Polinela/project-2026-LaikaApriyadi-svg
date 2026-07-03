@@ -19,21 +19,32 @@ def home_view(request):
     total_laporan = Report.objects.count()
     return render(request, 'home.html', {'total': total_laporan})
 
+
+def _is_staff_or_admin(user):
+    """Helper: cek apakah user adalah admin/staff (dipakai guard dashboard_view)."""
+    return user.is_authenticated and (getattr(user, 'is_admin', False) or user.is_staff)
+
+
 @login_required
 def dashboard_view(request):
+    # ---- GUARD: Hanya admin/staff yang boleh akses dashboard (AUTH-03) ----
+    if not _is_staff_or_admin(request.user):
+        messages.error(request, "Akses Ditolak: Halaman ini hanya untuk Admin!")
+        return redirect('report_list')
+
     # --- A. Data untuk Grafik Status (Doughnut Chart) ---
     # Menghitung jumlah laporan per status
     status_counts = Report.objects.values('status').annotate(total=Count('status'))
-    
+
     # Inisialisasi dictionary agar variabel di HTML (draft_count, dsb) tidak None
     stats = {
-        'DRAFT': 0, 
-        'REPORTED': 0, 
-        'VERIFIED': 0, 
-        'IN_PROGRESS': 0, 
+        'DRAFT': 0,
+        'REPORTED': 0,
+        'VERIFIED': 0,
+        'IN_PROGRESS': 0,
         'RESOLVED': 0
     }
-    
+
     for item in status_counts:
         # Ubah key jadi uppercase untuk mencocokkan stats dictionary
         s_key = item['status'].upper().replace(" ", "_")
@@ -62,7 +73,7 @@ def dashboard_view(request):
         'verified_count': stats['VERIFIED'],
         'progress_count': stats['IN_PROGRESS'],
         'resolved_count': stats['RESOLVED'],
-        
+
         'status_labels_json': json.dumps(status_labels),
         'status_values_json': json.dumps(status_values),
         'category_labels_json': json.dumps(category_labels),

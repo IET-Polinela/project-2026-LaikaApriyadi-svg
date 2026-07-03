@@ -21,16 +21,16 @@ const routes = {
         <div class="row g-4">
             <aside class="col-12 col-lg-3">
                 <div class="card border-0 p-3 shadow-sm mb-3" style="border-radius: 16px;">
-                    <button onclick="editingReportId=null; document.getElementById('reportForm').reset(); document.getElementById('reportModalLabel').innerText='Buat Laporan Baru';" 
+                    <button id="btnBukaModal" onclick="editingReportId=null; document.getElementById('reportForm').reset(); document.getElementById('reportModalLabel').innerText='Buat Laporan Baru';" 
                             data-bs-toggle="modal" data-bs-target="#reportModal" 
                             class="btn btn-primary btn-lg w-100 fw-bold mb-3" style="border-radius: 12px;">
                         <i class="bi bi-plus-circle-fill me-2"></i>Laporan Baru
                     </button>
                     
                     <!-- ========================================== -->
-                    <!-- SINKRONISASI 5 STATUS SESUAI IMAGE_5CD41E  -->
+                    <!-- SINKRONISASI 5 STATUS - dibungkus #summaryStats -->
                     <!-- ========================================== -->
-                    <div class="list-group list-group-flush small">
+                    <div id="summaryStats" class="list-group list-group-flush small">
                         <h6 class="fw-bold mb-3 mt-1 text-secondary"><i class="bi bi-graph-up me-2"></i>Rekap Status</h6>
                         
                         <div class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 py-2">
@@ -66,7 +66,7 @@ const routes = {
                         <button onclick="switchTab('my_reports')" id="tab-my_reports" class="nav-link w-100 active fw-bold">Laporan Saya</button>
                     </li>
                     <li class="nav-item flex-fill">
-                        <button onclick="switchTab('feed')" id="tab-feed" class="nav-link w-100 fw-bold text-muted">Feed Kota</button>
+                        <button onclick="switchTab('feed')" id="tabFeedKota" class="nav-link w-100 fw-bold text-muted">Feed Kota</button>
                     </li>
                 </ul>
 
@@ -92,14 +92,24 @@ const routes = {
     `
 };
 
+// Mapping id tombol tab (karena id tombol tidak selalu mengikuti pola 'tab-' + nama)
+const tabButtonIds = {
+    'my_reports': 'tab-my_reports',
+    'feed': 'tabFeedKota'
+};
+
 // Fungsi pembantu untuk visual tab di router
 function switchTab(tab) {
     document.querySelectorAll('.nav-link').forEach(el => {
         el.classList.remove('active');
         el.classList.add('text-muted');
     });
-    document.getElementById('tab-' + tab).classList.add('active');
-    document.getElementById('tab-' + tab).classList.remove('text-muted');
+
+    const activeBtn = document.getElementById(tabButtonIds[tab]);
+    if (activeBtn) {
+        activeBtn.classList.add('active');
+        activeBtn.classList.remove('text-muted');
+    }
     
     // Panggil fungsi penarik data dari app.js
     if (typeof loadDashboardData === 'function') {
